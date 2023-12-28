@@ -8,7 +8,7 @@ import (
 
 func TestStoreBlob(t *testing.T) {
 	url := "http://localhost:22258"
-	blobKey, err := StoreBlob(url+"/store/abcde", []byte("hello"))
+	blobKey, err := StoreBlob(url+"/store", []byte("hello"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -16,8 +16,8 @@ func TestStoreBlob(t *testing.T) {
 }
 
 func TestGetBlob(t *testing.T) {
-	url := "http://localhost:22258"
-	blobHeight, err := GetBlob(url + "/get/abcde/812235/e028045f77b2f204d547ee7e46fba108fcd8c77160b68ece8f424c7d2c5384ff")
+	url := "http://172.17.0.1:22258"
+	blobHeight, err := GetBlob(url + "/get/tcelestia/818210/ce4fb46ee9c363488fa2162e1d82eb142c1de45c159f6b629c619a0aff1d840d")
 	if err != nil {
 		log.Fatal(err)
 	}

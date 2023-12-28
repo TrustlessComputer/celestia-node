@@ -42,6 +42,7 @@ func getBlob(rpc *client.Client, height uint64, commitment []byte, ns []byte) ([
 }
 
 func main() {
+	const NAMESPACE = "tcelestia"
 	var CELESTIS_NODE = "http://localhost:26658"
 	var JWTToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJwdWJsaWMiLCJyZWFkIiwid3JpdGUiLCJhZG1pbiJdfQ.D1NtqUqJIX_FzFgiapuX3GMJoSeCT1-tg7XmxdlZmA0"
 	fmt.Println("Server start...")
@@ -51,13 +52,7 @@ func main() {
 	}
 
 	router := mux.NewRouter()
-	router.HandleFunc("/store/{namespace}", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		namespace := vars["namespace"]
-		if len(namespace) > 10 {
-			namespace = namespace[:10]
-		}
-
+	router.HandleFunc("/store", func(w http.ResponseWriter, r *http.Request) {
 		type RequestData struct {
 			Data string `json:"data"`
 		}
@@ -75,13 +70,15 @@ func main() {
 			return
 		}
 
-		commitment, height, err := storeBlob(client, decodedBytes, []byte(namespace))
+		commitment, height, err := storeBlob(client, decodedBytes, []byte(NAMESPACE))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		balance, err := client.State.Balance(context.Background())
+		fmt.Println(balance, len(decodedBytes))
 
-		_, err = w.Write([]byte(fmt.Sprintf("%d/%s", height, hex.EncodeToString(commitment))))
+		_, err = w.Write([]byte(fmt.Sprintf("/%s/%d/%s", NAMESPACE, height, hex.EncodeToString(commitment))))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -109,13 +106,12 @@ func main() {
 			return
 		}
 
-		fmt.Println("namespace", namespace)
 		data, err := getBlob(client, uint64(height), commitment, []byte(namespace))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		fmt.Println("data", string(data))
+
 		_, err = w.Write(data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
