@@ -1,0 +1,32 @@
+{
+  "status": "CONFIRMED",
+  "info": {
+    "blobHeader": {
+      "commitment": "",
+      "dataLength": 1,
+      "blobQuorumParams": [
+        {
+          "adversaryThresholdPercentage": 25,
+          "quorumThresholdPercentage": 50,
+          "chunkLength": 1
+        }
+      ]
+    },
+    "blobVerificationProof": {
+      "batchId": 83351,
+      "batchMetadata": {
+        "batchHeader": {
+          "batchRoot": "BZT6ORT3rVK1wF/xocujIGwNjyzhIqupt7TfFGkxSO4=",
+          "quorumNumbers": "AA==",
+          "quorumSignedPercentages": "UQ==",
+          "referenceBlockNumber": 10309405
+        },
+        "signatoryRecordHash": "0ml/K7NolkBOEifVWRJ1huLjBnspAmtyGUJnkuzegiY=",
+        "fee": "AA==",
+        "confirmationBlockNumber": 10309410,
+        "batchHeaderHash": "Qd+heSmTjXrXChemDYDOZ5d2fsw3usX9lCK72XKt/P4="
+      },
+      "inclusionProof": "0wkZazBkdrW7ngrH7ehQLalo2AP8bQnJPvIcEGJuLiBiAdcZMpagqfz9ukHZTb7X+elAEP68y07NLeAxQlIxDg==",
+      "quorumIndexes": "AA=="
+    }
+  }
