@@ -156,14 +156,14 @@ func ApiGetEigenda(w http.ResponseWriter, r *http.Request) {
 
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
 		fmt.Println("StderrPipe stderr:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	err = cmd.Start()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
 		fmt.Println("cmd.Start() err:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -181,12 +181,15 @@ func ApiGetEigenda(w http.ResponseWriter, r *http.Request) {
 	err = cmd.Wait()
 	if err != nil {
 		fmt.Println("cmd.Wait() err:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	fmt.Println("Result: " + string(outputErr))
 
 	var result EigendaDataResp
 	if err := json.Unmarshal(outputErr, &result); err != nil {
+		fmt.Println("Unmarshal err:", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -200,6 +203,7 @@ func ApiGetEigenda(w http.ResponseWriter, r *http.Request) {
 
 	_, err = w.Write(decodedBytes)
 	if err != nil {
+		fmt.Println("Write err:", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
