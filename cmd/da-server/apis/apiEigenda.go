@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
-	"os"
 	"os/exec"
 	"strconv"
 )
@@ -112,6 +111,70 @@ func ApiStoreEigenda(w http.ResponseWriter, r *http.Request) {
 }
 
 func ApiGetEigenda(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+
+	heightStr := vars["height"]
+	height, err := strconv.Atoi(heightStr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	commitmentHex, err := hex.DecodeString(vars["commitment"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	base64String := base64.StdEncoding.EncodeToString(commitmentHex)
+
+	dataCmd := fmt.Sprintf(`{"batch_header_hash": "%s"}, {"blob_index": "%d"}`, base64String, height)
+
+	fmt.Println("dataCmd: ", dataCmd)
+
+	err := os.Chdir(workingDir)
+	if err != nil {
+		fmt.Println("Chdir(workingDir):", err)
+		return
+	}
+
+	// get data:
+	cmd := exec.Command("grpcurl", "-proto", EIGENDA_PROTO, "-d", dataCmd, EIGENDA_NODE, "disperser.Disperser/RetrieveBlob")
+
+	// set working dir:
+	cmd.Dir = WORKING_DIR
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println("Error CombinedOutput: ", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var result EigendaDataResp
+	if err := json.Unmarshal(output, &result); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	// convert string to []byte
+	decodedBytes, err := base64.StdEncoding.DecodeString(result.Data)
+	if err != nil {
+		fmt.Println("Error decoding Base64:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	_, err = w.Write(decodedBytes)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	return
+}
+
+func ApiGetEigendaBK(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
