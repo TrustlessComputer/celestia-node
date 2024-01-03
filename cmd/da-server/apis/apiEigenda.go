@@ -36,7 +36,7 @@ func ApiStoreEigenda(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("dataCmd", dataCmd)
 
 	// todo: update some filed to configs:
-	cmd := exec.Command("grpcurl", "-proto", EIGENDA_PROTO, "-d", dataCmd, EIGENDA_NODE, "disperser.Disperser/DisperseBlob")
+	cmd := exec.Command("/root/go/bin/grpcurl", "-proto", EIGENDA_PROTO, "-d", dataCmd, EIGENDA_NODE, "disperser.Disperser/DisperseBlob")
 
 	// set working dir:
 	cmd.Dir = WORKING_DIR
@@ -65,7 +65,7 @@ func ApiStoreEigenda(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("dataCmd", dataCmd)
 
 		// get INFO:
-		cmd := exec.Command("grpcurl", "-proto", EIGENDA_PROTO, "-d", dataCmd, EIGENDA_NODE, "disperser.Disperser/GetBlobStatus")
+		cmd := exec.Command("/root/go/bin/grpcurl", "-proto", EIGENDA_PROTO, "-d", dataCmd, EIGENDA_NODE, "disperser.Disperser/GetBlobStatus")
 
 		// set working dir:
 		cmd.Dir = WORKING_DIR
@@ -114,28 +114,28 @@ func ApiGetEigenda(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
-	heightStr := vars["height"]
-	height, err := strconv.Atoi(heightStr)
+	indexStr := vars["index"]
+	index, err := strconv.Atoi(indexStr)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	commitmentHex, err := hex.DecodeString(vars["commitment"])
+	headerHashB64, err := hex.DecodeString(vars["headerHash"])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	base64String := base64.StdEncoding.EncodeToString(commitmentHex)
+	headerHashString := base64.StdEncoding.EncodeToString(headerHashB64)
 
-	dataCmd := fmt.Sprintf(`{"batch_header_hash": "%s"}, {"blob_index": "%d"}`, base64String, height)
+	dataCmd := fmt.Sprintf(`{"batch_header_hash": "%s" ,"blob_index": "%d"}`, headerHashString, index)
 
 	fmt.Println("dataCmd: ", dataCmd)
 
 	// get data:
-	cmd := exec.Command("grpcurl", "-proto", EIGENDA_PROTO, "-d", dataCmd, EIGENDA_NODE, "disperser.Disperser/RetrieveBlob")
-
+	cmd := exec.Command("/root/go/bin/grpcurl", "-proto", EIGENDA_PROTO, "-d", dataCmd, EIGENDA_NODE, "disperser.Disperser/RetrieveBlob")
+	fmt.Println(cmd.String())
 	// set working dir:
 	cmd.Dir = WORKING_DIR
 

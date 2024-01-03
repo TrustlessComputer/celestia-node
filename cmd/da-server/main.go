@@ -19,14 +19,14 @@ func main() {
 	router.HandleFunc("/get/{namespace}/{height}/{commitment}", apis.ApiGetCelestia).Methods("GET")
 
 	// elestia
-	apiCelestia := router.PathPrefix("/elestia").Subrouter()
+	apiCelestia := router.PathPrefix("/celestia").Subrouter()
 	apiCelestia.HandleFunc("/store", apis.ApiStoreCelestia).Methods("POST")
 	apiCelestia.HandleFunc("/get/{namespace}/{height}/{commitment}", apis.ApiGetCelestia).Methods("GET")
 
 	// eigenda
 	apiEigenda := router.PathPrefix("/eigenda").Subrouter()
 	apiEigenda.HandleFunc("/store", apis.ApiStoreEigenda).Methods("POST")
-	apiEigenda.HandleFunc("/get/{namespace}/{height}/{commitment}", apis.ApiGetEigenda).Methods("GET")
+	apiEigenda.HandleFunc("/get/{namespace}/{index}/{headerHash}", apis.ApiGetEigenda).Methods("GET")
 
 	log.Fatal(http.ListenAndServe("0.0.0.0:22258", router))
 }
