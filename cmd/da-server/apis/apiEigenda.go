@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"time"
 )
 
 const (
@@ -61,52 +62,67 @@ func ApiStoreEigenda(w http.ResponseWriter, r *http.Request) {
 	// get ID:
 	if result.Result == "PROCESSING" {
 
-		dataCmd := fmt.Sprintf(`{"request_id": "%s"}`, result.RequestId)
+		for i := 0; i < 5; i++ {
 
-		fmt.Println("dataCmd INFO", dataCmd)
+			fmt.Println("try times: ", i+1)
 
-		// get INFO:
-		cmd := exec.Command("/root/go/bin/grpcurl", "-proto", EIGENDA_PROTO, "-d", dataCmd, EIGENDA_NODE, "disperser.Disperser/GetBlobStatus")
+			dataCmd := fmt.Sprintf(`{"request_id": "%s"}`, result.RequestId)
 
-		// set working dir:
-		cmd.Dir = WORKING_DIR
+			fmt.Println("dataCmd INFO", dataCmd)
 
-		output, err := cmd.CombinedOutput()
-		if err != nil {
-			fmt.Println("Error CombinedOutput: ", err)
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
+			// get INFO:
+			cmd := exec.Command("/root/go/bin/grpcurl", "-proto", EIGENDA_PROTO, "-d", dataCmd, EIGENDA_NODE, "disperser.Disperser/GetBlobStatus")
+
+			// set working dir:
+			cmd.Dir = WORKING_DIR
+
+			output, err := cmd.CombinedOutput()
+			if err != nil {
+				fmt.Println("Error CombinedOutput: ", err)
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			var result EigendaDataResp
+			if err := json.Unmarshal(output, &result); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			if result.Status == "CONFIRMED" {
+				decodedBytes, err := base64.StdEncoding.DecodeString(result.Info.BlobVerificationProof.QuorumIndexes)
+				if err != nil {
+					fmt.Println("StdEncoding.DecodeString", err)
+					http.Error(w, err.Error(), http.StatusBadRequest)
+					return
+				}
+				height := int(decodedBytes[0])                                                      // the quorumIndexes
+				commitmentBase64 := result.Info.BlobVerificationProof.BatchMetadata.BatchHeaderHash // base64
+				// convert to hex:
+				decodedBytes2, err := base64.StdEncoding.DecodeString(commitmentBase64)
+				if err != nil {
+					fmt.Println("StdEncoding.DecodeString:", err)
+					return
+				}
+				commitmentHex := hex.EncodeToString(decodedBytes2)
+
+				_, err = w.Write([]byte(fmt.Sprintf("/%s/%d/%s", NAMESPACE_2, height, commitmentHex)))
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusBadRequest)
+					return
+				}
+				return
+			}
+			time.Sleep(time.Second * 30)
+
 		}
 
-		var result EigendaDataResp
-		if err := json.Unmarshal(output, &result); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		decodedBytes, err := base64.StdEncoding.DecodeString(result.Info.BlobVerificationProof.QuorumIndexes)
-		if err != nil {
-			fmt.Println("StdEncoding.DecodeString", err)
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		height := int(decodedBytes[0])                                                      // the quorumIndexes
-		commitmentBase64 := result.Info.BlobVerificationProof.BatchMetadata.BatchHeaderHash // base64
-		// convert to hex:
-		decodedBytes2, err := base64.StdEncoding.DecodeString(commitmentBase64)
-		if err != nil {
-			fmt.Println("StdEncoding.DecodeString:", err)
-			return
-		}
-		commitmentHex := hex.EncodeToString(decodedBytes2)
-
-		_, err = w.Write([]byte(fmt.Sprintf("/%s/%d/%s", NAMESPACE_2, height, commitmentHex)))
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+	} else {
+		http.Error(w, "NOT PROCESSING", http.StatusBadRequest)
+		return
 	}
 
+	http.Error(w, "timed out", http.StatusBadRequest)
 	return
 
 }
