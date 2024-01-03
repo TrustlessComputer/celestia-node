@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
+	"os"
 	"os/exec"
 	"strconv"
 )
@@ -133,9 +134,10 @@ func ApiGetEigenda(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("dataCmd: ", dataCmd)
 
-	err := os.Chdir(workingDir)
+	err = os.Chdir(WORKING_DIR)
 	if err != nil {
 		fmt.Println("Chdir(workingDir):", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
