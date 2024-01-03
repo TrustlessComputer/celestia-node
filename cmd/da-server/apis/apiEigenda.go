@@ -85,22 +85,22 @@ func ApiStoreEigenda(w http.ResponseWriter, r *http.Request) {
 
 			fmt.Println("output get detail: ", string(output))
 
-			var result EigendaDataResp
-			if err := json.Unmarshal(output, &result); err != nil {
+			var resultDetail EigendaDataResp
+			if err := json.Unmarshal(output, &resultDetail); err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
-			fmt.Println("status get detail: ", result.Status)
+			fmt.Println("status get detail: ", resultDetail.Status)
 
-			if result.Status == "CONFIRMED" {
-				decodedBytes, err := base64.StdEncoding.DecodeString(result.Info.BlobVerificationProof.QuorumIndexes)
+			if resultDetail.Status == "CONFIRMED" {
+				decodedBytes, err := base64.StdEncoding.DecodeString(resultDetail.Info.BlobVerificationProof.QuorumIndexes)
 				if err != nil {
 					fmt.Println("StdEncoding.DecodeString", err)
 					http.Error(w, err.Error(), http.StatusBadRequest)
 					return
 				}
-				height := int(decodedBytes[0])                                                      // the quorumIndexes
-				commitmentBase64 := result.Info.BlobVerificationProof.BatchMetadata.BatchHeaderHash // base64
+				height := int(decodedBytes[0])                                                            // the quorumIndexes
+				commitmentBase64 := resultDetail.Info.BlobVerificationProof.BatchMetadata.BatchHeaderHash // base64
 				// convert to hex:
 				decodedBytes2, err := base64.StdEncoding.DecodeString(commitmentBase64)
 				if err != nil {
