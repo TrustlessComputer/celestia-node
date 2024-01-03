@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
+	"os"
 	"os/exec"
 	"strconv"
 )
@@ -133,21 +134,59 @@ func ApiGetEigenda(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("dataCmd: ", dataCmd)
 
+	err = os.Chdir(WORKING_DIR)
+	if err != nil {
+		fmt.Println("Chdir(workingDir) err:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	// get data:
 	cmd := exec.Command("grpcurl", "-proto", EIGENDA_PROTO, "-d", dataCmd, EIGENDA_NODE, "disperser.Disperser/RetrieveBlob")
 
 	// set working dir:
 	cmd.Dir = WORKING_DIR
 
-	output, err := cmd.CombinedOutput()
+	// output, err := cmd.CombinedOutput()
+	// if err != nil {
+	// 	fmt.Println("Error CombinedOutput: ", err)
+	// 	http.Error(w, err.Error(), http.StatusBadRequest)
+	// 	return
+	// }
+
+	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		fmt.Println("Error CombinedOutput: ", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		fmt.Println("StderrPipe stderr:", err)
+		return
+	}
+	err = cmd.Start()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		fmt.Println("cmd.Start() err:", err)
 		return
 	}
 
+	outputErr := make([]byte, 0, 512)
+	for {
+		buf := make([]byte, 512)
+		n, err := stderr.Read(buf)
+		if n > 0 {
+			outputErr = append(outputErr, buf[:n]...)
+		}
+		if err != nil {
+			break
+		}
+	}
+	err = cmd.Wait()
+	if err != nil {
+		fmt.Println("cmd.Wait() err:", err)
+	}
+
+	fmt.Println("Result: " + string(outputErr))
+
 	var result EigendaDataResp
-	if err := json.Unmarshal(output, &result); err != nil {
+	if err := json.Unmarshal(outputErr, &result); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
