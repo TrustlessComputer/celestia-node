@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
+	"os"
 	"os/exec"
 	"strconv"
 )
@@ -133,6 +134,13 @@ func ApiGetEigenda(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("dataCmd: ", dataCmd)
 
+	err = os.Chdir(WORKING_DIR)
+	if err != nil {
+		fmt.Println("Chdir(workingDir):", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	// get data:
 	cmd := exec.Command("/root/go/bin/grpcurl", "-proto", EIGENDA_PROTO, "-d", dataCmd, EIGENDA_NODE, "disperser.Disperser/RetrieveBlob")
 	fmt.Println(cmd.String())
@@ -161,6 +169,106 @@ func ApiGetEigenda(w http.ResponseWriter, r *http.Request) {
 
 	_, err = w.Write(decodedBytes)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	return
+}
+
+func ApiGetEigendaBK(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+
+	heightStr := vars["height"]
+	height, err := strconv.Atoi(heightStr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	commitmentHex, err := hex.DecodeString(vars["commitment"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	base64String := base64.StdEncoding.EncodeToString(commitmentHex)
+
+	dataCmd := fmt.Sprintf(`{"batch_header_hash": "%s"}, {"blob_index": "%d"}`, base64String, height)
+
+	fmt.Println("dataCmd: ", dataCmd)
+
+	err = os.Chdir(WORKING_DIR)
+	if err != nil {
+		fmt.Println("Chdir(workingDir) err:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// get data:
+	cmd := exec.Command("grpcurl", "-proto", EIGENDA_PROTO, "-d", dataCmd, EIGENDA_NODE, "disperser.Disperser/RetrieveBlob")
+
+	// set working dir:
+	cmd.Dir = WORKING_DIR
+
+	// output, err := cmd.CombinedOutput()
+	// if err != nil {
+	// 	fmt.Println("Error CombinedOutput: ", err)
+	// 	http.Error(w, err.Error(), http.StatusBadRequest)
+	// 	return
+	// }
+
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		fmt.Println("StderrPipe stderr:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = cmd.Start()
+	if err != nil {
+		fmt.Println("cmd.Start() err:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	outputErr := make([]byte, 0, 512)
+	for {
+		buf := make([]byte, 512)
+		n, err := stderr.Read(buf)
+		if n > 0 {
+			outputErr = append(outputErr, buf[:n]...)
+		}
+		if err != nil {
+			break
+		}
+	}
+	err = cmd.Wait()
+	if err != nil {
+		fmt.Println("cmd.Wait() err:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	fmt.Println("Result: " + string(outputErr))
+
+	var result EigendaDataResp
+	if err := json.Unmarshal(outputErr, &result); err != nil {
+		fmt.Println("Unmarshal err:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	// convert string to []byte
+	decodedBytes, err := base64.StdEncoding.DecodeString(result.Data)
+	if err != nil {
+		fmt.Println("Error decoding Base64:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	_, err = w.Write(decodedBytes)
+	if err != nil {
+		fmt.Println("Write err:", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
