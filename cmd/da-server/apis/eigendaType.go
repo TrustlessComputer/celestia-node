@@ -38,6 +38,7 @@ type Info struct {
 }
 
 type EigendaDataResp struct {
+	Result    string `json:"result"`
 	Status    string `json:"status"`
 	Info      Info   `json:"info"`
 	RequestId string `json:"requestId"`

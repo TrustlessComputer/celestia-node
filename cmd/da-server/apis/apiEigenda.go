@@ -55,15 +55,15 @@ func ApiStoreEigenda(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("Status:", result.Status)
+	fmt.Println("Result:", result.Result)
 	fmt.Println("RequestID:", result.RequestId)
 
 	// get ID:
-	if result.Status == "PROCESSING" {
+	if result.Result == "PROCESSING" {
 
 		dataCmd := fmt.Sprintf(`{"request_id": "%s"}`, result.RequestId)
 
-		fmt.Println("dataCmd", dataCmd)
+		fmt.Println("dataCmd INFO", dataCmd)
 
 		// get INFO:
 		cmd := exec.Command("grpcurl", "-proto", EIGENDA_PROTO, "-d", dataCmd, EIGENDA_NODE, "disperser.Disperser/GetBlobStatus")
@@ -132,7 +132,7 @@ func ApiGetEigenda(w http.ResponseWriter, r *http.Request) {
 
 	dataCmd := fmt.Sprintf(`{"batch_header_hash": "%s"}, {"blob_index": "%d"}`, base64String, height)
 
-	fmt.Println("dataCmd: ", dataCmd)
+	fmt.Println("dataCmd ApiGetEigenda: ", dataCmd)
 
 	err = os.Chdir(WORKING_DIR)
 	if err != nil {
