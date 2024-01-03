@@ -62,7 +62,7 @@ func ApiStoreEigenda(w http.ResponseWriter, r *http.Request) {
 	// get ID:
 	if result.Result == "PROCESSING" {
 
-		for i := 0; i < 5; i++ {
+		for i := 0; i < 20; i++ {
 
 			fmt.Println("try times: ", i+1)
 
@@ -83,11 +83,14 @@ func ApiStoreEigenda(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
+			fmt.Println("output get detail: ", string(output))
+
 			var result EigendaDataResp
 			if err := json.Unmarshal(output, &result); err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
+			fmt.Println("status get detail: ", result.Status)
 
 			if result.Status == "CONFIRMED" {
 				decodedBytes, err := base64.StdEncoding.DecodeString(result.Info.BlobVerificationProof.QuorumIndexes)
