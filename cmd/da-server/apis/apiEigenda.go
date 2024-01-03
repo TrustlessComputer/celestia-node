@@ -15,6 +15,8 @@ const (
 	NAMESPACE_2   = "tceigenda"
 	EIGENDA_NODE  = "disperser-goerli.eigenda.xyz:443"
 	EIGENDA_PROTO = "./api/proto/disperser/disperser.proto"
+
+	WORKING_DIR = "/root/data/eigenda"
 )
 
 func ApiStoreEigenda(w http.ResponseWriter, r *http.Request) {
@@ -35,6 +37,9 @@ func ApiStoreEigenda(w http.ResponseWriter, r *http.Request) {
 
 	// todo: update some filed to configs:
 	cmd := exec.Command("grpcurl", "-proto", EIGENDA_PROTO, "-d", dataCmd, EIGENDA_NODE, "disperser.Disperser/DisperseBlob")
+
+	// set working dir:
+	cmd.Dir = WORKING_DIR
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -61,6 +66,9 @@ func ApiStoreEigenda(w http.ResponseWriter, r *http.Request) {
 
 		// get INFO:
 		cmd := exec.Command("grpcurl", "-proto", EIGENDA_PROTO, "-d", dataCmd, EIGENDA_NODE, "disperser.Disperser/GetBlobStatus")
+
+		// set working dir:
+		cmd.Dir = WORKING_DIR
 
 		output, err := cmd.CombinedOutput()
 		if err != nil {
@@ -127,6 +135,9 @@ func ApiGetEigenda(w http.ResponseWriter, r *http.Request) {
 
 	// get data:
 	cmd := exec.Command("grpcurl", "-proto", EIGENDA_PROTO, "-d", dataCmd, EIGENDA_NODE, "disperser.Disperser/RetrieveBlob")
+
+	// set working dir:
+	cmd.Dir = WORKING_DIR
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
