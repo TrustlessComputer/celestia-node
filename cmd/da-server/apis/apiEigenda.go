@@ -93,13 +93,20 @@ func ApiStoreEigenda(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("status get detail: ", resultDetail.Status)
 
 			if resultDetail.Status == "CONFIRMED" {
-				decodedBytes, err := base64.StdEncoding.DecodeString(resultDetail.Info.BlobVerificationProof.QuorumIndexes)
-				if err != nil {
-					fmt.Println("StdEncoding.DecodeString", err)
-					http.Error(w, err.Error(), http.StatusBadRequest)
-					return
-				}
-				height := int(decodedBytes[0])                                                            // the quorumIndexes
+
+				fmt.Println("status get detail -> BlobIndex ", resultDetail.Info.BlobVerificationProof.BlobIndex)
+				fmt.Println("status get detail -> batchHeaderHash ", resultDetail.Info.BlobVerificationProof.BatchMetadata.BatchHeaderHash)
+
+				// decodedBytes, err := base64.StdEncoding.DecodeString(resultDetail.Info.BlobVerificationProof.QuorumIndexes)
+				// if err != nil {
+				// 	fmt.Println("StdEncoding.DecodeString", err)
+				// 	http.Error(w, err.Error(), http.StatusBadRequest)
+				// 	return
+				// }
+				// height := int(decodedBytes[0])
+
+				height := resultDetail.Info.BlobVerificationProof.BlobIndex
+
 				commitmentBase64 := resultDetail.Info.BlobVerificationProof.BatchMetadata.BatchHeaderHash // base64
 				// convert to hex:
 				decodedBytes2, err := base64.StdEncoding.DecodeString(commitmentBase64)
@@ -108,6 +115,8 @@ func ApiStoreEigenda(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 				commitmentHex := hex.EncodeToString(decodedBytes2)
+
+				fmt.Println("status get detail -> batchHeaderHash.Hex ", commitmentHex)
 
 				_, err = w.Write([]byte(fmt.Sprintf("/%s/%d/%s", NAMESPACE_2, height, commitmentHex)))
 				if err != nil {

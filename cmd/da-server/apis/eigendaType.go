@@ -27,6 +27,7 @@ type BatchMetadata struct {
 
 type BlobVerificationProof struct {
 	BatchId        int           `json:"batchId"`
+	BlobIndex      int           `json:"blobIndex"`
 	BatchMetadata  BatchMetadata `json:"batchMetadata"`
 	InclusionProof string        `json:"inclusionProof"`
 	QuorumIndexes  string        `json:"quorumIndexes"`
