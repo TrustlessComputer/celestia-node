@@ -84,6 +84,8 @@ require (
 	github.com/ethereum/c-kzg-4844 v0.3.1 // indirect
 	github.com/hashicorp/golang-lru/arc/v2 v2.0.5 // indirect
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
+	github.com/near/rollup-data-availability v0.2.3 // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/supranational/blst v0.3.11 // indirect
 	go.uber.org/mock v0.3.0 // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
