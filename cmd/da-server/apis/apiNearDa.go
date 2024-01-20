@@ -52,7 +52,7 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	println("frameRef.TxId", frameRef.TxId, "frameRef.TxCommitment", frameRef.TxCommitment)
+	fmt.Println("frameRef.TxId", frameRef.TxId, "frameRef.TxCommitment", frameRef.TxCommitment)
 
 	if string(frameRef.TxId) != "11111111111111111111111111111111" {
 		err = errors.New("Expected id to be equal")
