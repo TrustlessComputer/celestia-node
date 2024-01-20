@@ -37,6 +37,7 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 
 	config, err := near.NewConfig(DA_ACCOUNT, DA_CONTRACT, DA_KEY, 1)
 	if err != nil {
+		fmt.Println("NewConfig err:", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -46,9 +47,16 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 
 	result, err := config.Submit(candidateHex, data)
 
+	if err != nil {
+		fmt.Println("submit err:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	frameRef := near.FrameRef{}
 	err = frameRef.UnmarshalBinary(result)
 	if err != nil {
+		fmt.Println("UnmarshalBinary err:", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -56,12 +64,14 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 
 	if string(frameRef.TxId) != "11111111111111111111111111111111" {
 		err = errors.New("Expected id to be equal")
+		fmt.Println(frameRef.TxId, " err:", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 
 	}
 	if string(frameRef.TxCommitment) != "22222222222222222222222222222222" {
 		err = errors.New("Expected commitment to be equal")
+		fmt.Println(frameRef.TxCommitment, " err:", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
