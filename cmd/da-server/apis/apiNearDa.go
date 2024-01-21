@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"encoding/base64"
 	"encoding/binary"
 	"encoding/hex"
 	"errors"
@@ -120,13 +121,13 @@ func ApiGetNearDA(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
-	// headerHashString := base64.StdEncoding.EncodeToString(headerHashB64)
+	commitmentStr := base64.StdEncoding.EncodeToString(commitmentHex)
 
 	id := make([]byte, 32)
 	copy(id, []byte(height))
 
 	commitment := make([]byte, 32)
-	copy(commitment, []byte(commitmentHex))
+	copy(commitment, []byte(commitmentStr))
 	frameRef := near.FrameRef{
 		TxId:         id,
 		TxCommitment: commitment,
