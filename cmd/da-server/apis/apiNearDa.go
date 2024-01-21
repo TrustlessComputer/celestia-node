@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	DA_KEY      = "ed25519:H9kRHf4GAGkGSRPuyj4d3gvs4iXuePVJSyEeQTGgokY"
+	DA_KEY      = "ed25519:4hikrHo7gqGJAszBJZuHMRewyYvReRQr3ZocHAJZLfgCxC3ZpANQzxFZPtTQbuRSu4rj7trM5k8QcSvS4dicLABr"
 	DA_CONTRACT = "nearda.testnet"
 	DA_ACCOUNT  = "nearda.testnet"
 )
