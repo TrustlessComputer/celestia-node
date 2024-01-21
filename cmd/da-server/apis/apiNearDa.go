@@ -36,10 +36,10 @@ func ApiTestNearDA(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func ConvertDataToHex([]byte data) (int, string, error) {
+func ConvertDataToHex(data []byte) (int, string, error) {
 	frameRef := near.FrameRef{}
 	err = frameRef.UnmarshalBinary(result)
-	if err != nil {		
+	if err != nil {
 		return err
 	}
 	fmt.Println("frameRef.TxId", frameRef.TxId, "frameRef.TxCommitment", frameRef.TxCommitment)
@@ -49,8 +49,6 @@ func ConvertDataToHex([]byte data) (int, string, error) {
 	commitmentHex := hex.EncodeToString(frameRef.TxCommitment)
 
 	height := binary.BigEndian.Uint64(frameRef.TxId)
-
-	
 
 	return height, commitmentHex, nil
 }
@@ -91,8 +89,6 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("height: ", height)
 	fmt.Println("commitmentHex: ", commitmentHex)
 
-	
-
 	// if string(frameRef.TxId) != "11111111111111111111111111111111" {
 	// 	err = errors.New("Expected id to be equal")
 	// 	fmt.Println(frameRef.TxId, " err:", err)
@@ -107,8 +103,6 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
-	
-
 	// time.Sleep(30 * time.Second)
 
 	return
@@ -117,10 +111,8 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 
 func ApiGetNearDA(w http.ResponseWriter, r *http.Request) {
 
-	
-
-	commitmentHex:=  "ed8e75db33506660bbbb1e7c98b9e9708b02587314b4b7a171304b90fadc49dc"
-	height :=  "5814586574713041586"
+	commitmentHex := "ed8e75db33506660bbbb1e7c98b9e9708b02587314b4b7a171304b90fadc49dc"
+	height := "5814586574713041586"
 
 	// headerHashB64, err := hex.DecodeString(vars["headerHash"])
 	// if err != nil {
@@ -132,7 +124,7 @@ func ApiGetNearDA(w http.ResponseWriter, r *http.Request) {
 
 	id := make([]byte, 32)
 	copy(id, []byte(height))
-	
+
 	commitment := make([]byte, 32)
 	copy(commitment, []byte(commitmentHex))
 	frameRef := near.FrameRef{
@@ -146,7 +138,6 @@ func ApiGetNearDA(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	
 
 	config, err := near.NewConfig(DA_ACCOUNT, DA_CONTRACT, DA_KEY, 1)
 	if err != nil {
