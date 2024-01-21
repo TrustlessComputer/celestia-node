@@ -44,9 +44,13 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var candidateHex string = "0xfF00000000000000000000000000000000000000"
-	var data []byte = []byte("elvis")
 
-	result, err := config.Submit(candidateHex, data)
+	// var data []byte = []byte("elvis")
+
+	bytes := make([]byte, 64)
+	copy(bytes, []byte("1111111111111111111111111111111122222222222222222222222222222222"))
+
+	result, err := config.Submit(candidateHex, bytes)
 
 	if err != nil {
 		fmt.Println("submit err:", err)
