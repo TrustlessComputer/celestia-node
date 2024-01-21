@@ -151,7 +151,7 @@ func ApiGetNearDA(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resultHex := "955a51bf0e235992be9ab048bbd2943bdfbe34994afb1817f2eabcd6645cbec4ed8e75db33506660bbbb1e7c98b9e9708b02587314b4b7a171304b90fadc49dc"
+	resultHex := "5dc15471df1cc3fe66c79fd183076b1c0a255ec89026e021cab1fb591b8641e5847927a9251f1063703f640348cba026b214eb28dbd85837409c41aedccc7238"
 	// convert to []byte:
 	resultByte, err := hex.DecodeString(resultHex)
 	if err != nil {
