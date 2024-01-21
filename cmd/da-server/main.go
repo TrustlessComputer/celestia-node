@@ -31,7 +31,7 @@ func main() {
 	// near da:
 	apiNearDa := router.PathPrefix("/nearda").Subrouter()
 	apiNearDa.HandleFunc("/store", apis.ApiStoreNearDA).Methods("POST", "GET")
-	apiNearDa.HandleFunc("/get/{namespace}/{index}/{headerHash}", apis.ApiGetNearDA).Methods("GET")
+	apiNearDa.HandleFunc("/get/{namespace}/{dataHex}}", apis.ApiGetNearDA).Methods("GET")
 
 	log.Fatal(http.ListenAndServe("0.0.0.0:22259", router))
 }

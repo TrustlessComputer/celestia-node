@@ -80,6 +80,10 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	resultHex := hex.EncodeToString(result)
+
+	fmt.Println("resultHex ", resultHex)
+
 	height, commitmentHex, err := ConvertDataToHex(result)
 	if err != nil {
 		fmt.Println("ConvertDataToHex err:", err)
