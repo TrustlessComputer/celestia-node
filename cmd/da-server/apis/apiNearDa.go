@@ -115,13 +115,14 @@ func ApiGetNearDA(w http.ResponseWriter, r *http.Request) {
 	commitmentHex := "ed8e75db33506660bbbb1e7c98b9e9708b02587314b4b7a171304b90fadc49dc"
 	height := "5814586574713041586"
 
-	// headerHashB64, err := hex.DecodeString(vars["headerHash"])
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusBadRequest)
-	// 	return
-	// }
+	commitmentHashB64, err := hex.DecodeString(commitmentHex)
+	if err != nil {
+		fmt.Println("DecodeString err:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-	commitmentStr := base64.StdEncoding.EncodeToString(commitmentHex)
+	commitmentStr := base64.StdEncoding.EncodeToString(commitmentHashB64)
 
 	id := make([]byte, 32)
 	copy(id, []byte(height))
