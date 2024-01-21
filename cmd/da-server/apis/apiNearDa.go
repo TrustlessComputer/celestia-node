@@ -47,12 +47,12 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 
 	result, err := config.Submit(candidateHex, data)
 
-	fmt.Println("submit result:", err)
-
 	if err != nil {
 		fmt.Println("submit err:", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	} else {
+		fmt.Println("submit result:", string(result))
 	}
 
 	frameRef := near.FrameRef{}
