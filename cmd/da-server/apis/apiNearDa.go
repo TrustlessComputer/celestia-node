@@ -36,11 +36,11 @@ func ApiTestNearDA(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func ConvertDataToHex(data []byte) (int, string, error) {
+func ConvertDataToHex(data []byte) (uint64, string, error) {
 	frameRef := near.FrameRef{}
-	err = frameRef.UnmarshalBinary(result)
+	err := frameRef.UnmarshalBinary(data)
 	if err != nil {
-		return err
+		return 0, "", err
 	}
 	fmt.Println("frameRef.TxId", frameRef.TxId, "frameRef.TxCommitment", frameRef.TxCommitment)
 
