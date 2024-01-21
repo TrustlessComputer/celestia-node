@@ -5,6 +5,7 @@ import (
 	"fmt"
 	near "github.com/near/rollup-data-availability/gopkg/da-rpc"
 	"net/http"
+	"time"
 )
 
 const (
@@ -54,6 +55,16 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 	} else {
 		fmt.Println("submit result:", string(result))
 	}
+
+	time.Sleep(30 * time.Second)
+
+	blob, err := config.Get(result, 0)
+	if err != nil {
+		fmt.Println("config.Get err:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	fmt.Println("blob: ", blob)
 
 	frameRef := near.FrameRef{}
 	err = frameRef.UnmarshalBinary(result)
