@@ -47,6 +47,8 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 
 	result, err := config.Submit(candidateHex, data)
 
+	fmt.Println("submit result:", err)
+
 	if err != nil {
 		fmt.Println("submit err:", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -61,6 +63,8 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("frameRef.TxId", frameRef.TxId, "frameRef.TxCommitment", frameRef.TxCommitment)
+
+	fmt.Println("frameRef.TxId.String()", string(frameRef.TxId), "frameRef.TxCommitment.String()", string(frameRef.TxCommitment))
 
 	if string(frameRef.TxId) != "11111111111111111111111111111111" {
 		err = errors.New("Expected id to be equal")
