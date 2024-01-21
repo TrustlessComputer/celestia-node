@@ -7,7 +7,7 @@ import (
 	"fmt"
 	near "github.com/near/rollup-data-availability/gopkg/da-rpc"
 	"net/http"
-	"time"
+	// "time"
 )
 
 const (
