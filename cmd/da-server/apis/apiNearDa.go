@@ -8,17 +8,14 @@ import (
 )
 
 const (
-	DA_KEY      = "ed25519:4U1jUuRG6xkRBv1pMyiwFV3jeSP3qQVZnp2FWzFD3o46pPU4SE3xtBRbPPZvrV7W22mbodCV6NhpSGxwYr5mhGhe"
-	DA_CONTRACT = "nearda3.testnet"
-	DA_ACCOUNT  = "nearda3.testnet"
+	DA_KEY      = "ed25519:5rruwJXodZu6phNsApFcAm9LFxSy7nYpwnCB8vQDAvJKVgDZ424uGyXQiHQGTM3sbeBkvVXKbGxFiuswXaNRWKjv"
+	DA_CONTRACT = "8363d67bf00d1aea294285ad3fd1066378ac502d25995cf4a474326535a37201"
+	DA_ACCOUNT  = "8363d67bf00d1aea294285ad3fd1066378ac502d25995cf4a474326535a37201"
 )
 
 func ApiTestNearDA(w http.ResponseWriter, r *http.Request) {
 
-	// config, err := near.NewConfig(DA_ACCOUNT, DA_CONTRACT, DA_KEY, 1)
-
-	config, err := near.NewConfig("account", "contract", "key", 1)
-
+	config, err := near.NewConfig(DA_ACCOUNT, DA_CONTRACT, DA_KEY, 1)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
