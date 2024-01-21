@@ -1,7 +1,7 @@
 package apis
 
 import (
-	"encoding/base64"
+	// "encoding/base64"
 	"encoding/binary"
 	"encoding/hex"
 	"errors"
@@ -116,41 +116,51 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 
 func ApiGetNearDA(w http.ResponseWriter, r *http.Request) {
 
-	commitmentHex := "ed8e75db33506660bbbb1e7c98b9e9708b02587314b4b7a171304b90fadc49dc"
-	height := "5814586574713041586"
+	// commitmentHex := "ed8e75db33506660bbbb1e7c98b9e9708b02587314b4b7a171304b90fadc49dc"
+	// height := "5814586574713041586"
 
-	commitmentHashB64, err := hex.DecodeString(commitmentHex)
-	if err != nil {
-		fmt.Println("DecodeString err:", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	// commitmentHashB64, err := hex.DecodeString(commitmentHex)
+	// if err != nil {
+	// 	fmt.Println("DecodeString err:", err)
+	// 	http.Error(w, err.Error(), http.StatusBadRequest)
+	// 	return
+	// }
 
-	commitmentStr := base64.StdEncoding.EncodeToString(commitmentHashB64)
+	// commitmentStr := base64.StdEncoding.EncodeToString(commitmentHashB64)
 
-	id := make([]byte, 32)
-	copy(id, []byte(height))
+	// id := make([]byte, 32)
+	// copy(id, []byte(height))
 
-	commitment := make([]byte, 32)
-	copy(commitment, []byte(commitmentStr))
-	frameRef := near.FrameRef{
-		TxId:         id,
-		TxCommitment: commitment,
-	}
-	binary, err := frameRef.MarshalBinary()
-	println("binary, id, commitment", binary, id, commitment)
-	if err != nil {
-		fmt.Println("MarshalBinary err:", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	// commitment := make([]byte, 32)
+	// copy(commitment, []byte(commitmentStr))
+	// frameRef := near.FrameRef{
+	// 	TxId:         id,
+	// 	TxCommitment: commitment,
+	// }
+	// binary, err := frameRef.MarshalBinary()
+	// println("binary, id, commitment", binary, id, commitment)
+	// if err != nil {
+	// 	fmt.Println("MarshalBinary err:", err)
+	// 	http.Error(w, err.Error(), http.StatusBadRequest)
+	// 	return
+	// }
 
 	config, err := near.NewConfig(DA_ACCOUNT, DA_CONTRACT, DA_KEY, 1)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	blob, err := config.Get(binary, 0)
+
+	resultHex := "955a51bf0e235992be9ab048bbd2943bdfbe34994afb1817f2eabcd6645cbec4ed8e75db33506660bbbb1e7c98b9e9708b02587314b4b7a171304b90fadc49dc"
+	// convert to []byte:
+	resultByte, err := hex.DecodeString(resultHex)
+	if err != nil {
+		fmt.Println("DecodeString: ", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	blob, err := config.Get(resultByte, 0)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
