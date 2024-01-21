@@ -52,8 +52,6 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("submit err:", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
-	} else {
-		fmt.Println("submit result:", string(result))
 	}
 
 	time.Sleep(30 * time.Second)
@@ -64,7 +62,8 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	fmt.Println("blob: ", blob)
+	fmt.Println("blob byte: ", blob)
+	fmt.Println("submit result byte:", result)
 
 	frameRef := near.FrameRef{}
 	err = frameRef.UnmarshalBinary(result)
