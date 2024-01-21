@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	DA_KEY      = "ed25519:5rruwJXodZu6phNsApFcAm9LFxSy7nYpwnCB8vQDAvJKVgDZ424uGyXQiHQGTM3sbeBkvVXKbGxFiuswXaNRWKjv"
-	DA_CONTRACT = "8363d67bf00d1aea294285ad3fd1066378ac502d25995cf4a474326535a37201"
-	DA_ACCOUNT  = "8363d67bf00d1aea294285ad3fd1066378ac502d25995cf4a474326535a37201"
+	DA_KEY      = "ed25519:H9kRHf4GAGkGSRPuyj4d3gvs4iXuePVJSyEeQTGgokY"
+	DA_CONTRACT = "nearda.testnet"
+	DA_ACCOUNT  = "nearda.testnet"
 )
 
 func ApiTestNearDA(w http.ResponseWriter, r *http.Request) {
