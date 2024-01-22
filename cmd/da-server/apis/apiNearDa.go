@@ -84,8 +84,16 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 
 	// bytes := make([]byte, 64)
 	// copy(bytes, []byte(dataBase64))
+	decodedBytes, err := base64.StdEncoding.DecodeString(dataBase64)
+	if err != nil {
+		fmt.Println("Error decoding Base64:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-	result, err := config.Submit(candidateHex, []byte(dataBase64))
+	fmt.Println("decodedBytes: ", decodedBytes)
+
+	result, err := config.Submit(candidateHex, []byte(decodedBytes))
 
 	if err != nil {
 		fmt.Println("submit err:", err)
@@ -146,21 +154,21 @@ func ApiGetNearDA(w http.ResponseWriter, r *http.Request) {
 	// fmt.Println("blob byte: ", blob)
 	// fmt.Println("blob string: ", string(blob))
 
-	resultHex := hex.EncodeToString(blob)
+	//resultHex := hex.EncodeToString(blob)
+	//
+	//fmt.Println("resultHex: ", resultHex)
+	//
+	//// convert string to []byte
+	//decodedBytes, err := base64.StdEncoding.DecodeString(resultHex)
+	//if err != nil {
+	//	fmt.Println("Error decoding Base64:", err)
+	//	http.Error(w, err.Error(), http.StatusBadRequest)
+	//	return
+	//}
+	//
+	//fmt.Println("decodedBytes: ", decodedBytes)
 
-	fmt.Println("resultHex: ", resultHex)
-
-	// convert string to []byte
-	decodedBytes, err := base64.StdEncoding.DecodeString(resultHex)
-	if err != nil {
-		fmt.Println("Error decoding Base64:", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	fmt.Println("decodedBytes: ", decodedBytes)
-
-	_, err = w.Write(decodedBytes)
+	_, err = w.Write(blob)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
