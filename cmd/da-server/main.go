@@ -33,5 +33,5 @@ func main() {
 	apiNearDa.HandleFunc("/store", apis.ApiStoreNearDA).Methods("POST", "GET")
 	apiNearDa.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetNearDA).Methods("GET")
 
-	log.Fatal(http.ListenAndServe("0.0.0.0:22259", router))
+	log.Fatal(http.ListenAndServe("0.0.0.0:22258", router))
 }
