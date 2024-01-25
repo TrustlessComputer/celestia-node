@@ -10,17 +10,38 @@ import (
 	"github.com/gorilla/mux"
 	near "github.com/near/rollup-data-availability/gopkg/da-rpc"
 	"net/http"
+	"os"
 )
 
 const (
-	DA_KEY      = "ed25519:5rruwJXodZu6phNsApFcAm9LFxSy7nYpwnCB8vQDAvJKVgDZ424uGyXQiHQGTM3sbeBkvVXKbGxFiuswXaNRWKjv"
-	DA_CONTRACT = "8363d67bf00d1aea294285ad3fd1066378ac502d25995cf4a474326535a37201"
-	DA_ACCOUNT  = "8363d67bf00d1aea294285ad3fd1066378ac502d25995cf4a474326535a37201"
+	// DA_KEY      = "ed25519:5rruwJXodZu6phNsApFcAm9LFxSy7nYpwnCB8vQDAvJKVgDZ424uGyXQiHQGTM3sbeBkvVXKbGxFiuswXaNRWKjv"
+	// DA_CONTRACT = "8363d67bf00d1aea294285ad3fd1066378ac502d25995cf4a474326535a37201"
+	// DA_ACCOUNT  = "8363d67bf00d1aea294285ad3fd1066378ac502d25995cf4a474326535a37201"
 
 	NAMESPACE_3 = "tcnearda"
 )
 
+func GetNearDaConfig() (string, string, string) {
+
+	_DA_CONTRACT := "8363d67bf00d1aea294285ad3fd1066378ac502d25995cf4a474326535a37201"
+	_DA_ACCOUNT := "8363d67bf00d1aea294285ad3fd1066378ac502d25995cf4a474326535a37201"
+	_DA_KEY := "ed25519:5rruwJXodZu6phNsApFcAm9LFxSy7nYpwnCB8vQDAvJKVgDZ424uGyXQiHQGTM3sbeBkvVXKbGxFiuswXaNRWKjv"
+
+	env := os.Getenv("api_env")
+
+	if env == "mainnet" {
+		_DA_CONTRACT = "507cf5df56c8d98e6f5983599da44a1beacbd60f974336ed68b669769c164d44"
+		_DA_ACCOUNT = "507cf5df56c8d98e6f5983599da44a1beacbd60f974336ed68b669769c164d44"
+		_DA_KEY := os.Getenv("NEAR_DA_KEY")
+	}
+
+	return _DA_KEY, _DA_CONTRACT, _DA_ACCOUNT
+
+}
+
 func ApiTestNearDA(w http.ResponseWriter, r *http.Request) {
+
+	DA_ACCOUNT, DA_CONTRACT, DA_KEY := GetNearDaConfig()
 
 	config, err := near.NewConfig(DA_ACCOUNT, DA_CONTRACT, DA_KEY, 1)
 	if err != nil {
@@ -68,6 +89,8 @@ func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	DA_ACCOUNT, DA_CONTRACT, DA_KEY := GetNearDaConfig()
 
 	config, err := near.NewConfig(DA_ACCOUNT, DA_CONTRACT, DA_KEY, 1)
 	if err != nil {
@@ -140,6 +163,7 @@ func ApiGetNearDA(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	DA_ACCOUNT, DA_CONTRACT, DA_KEY := GetNearDaConfig()
 	config, err := near.NewConfig(DA_ACCOUNT, DA_CONTRACT, DA_KEY, 1)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
