@@ -32,7 +32,7 @@ func GetNearDaConfig() (string, string, string) {
 	if env == "mainnet" {
 		_DA_CONTRACT = "507cf5df56c8d98e6f5983599da44a1beacbd60f974336ed68b669769c164d44"
 		_DA_ACCOUNT = "507cf5df56c8d98e6f5983599da44a1beacbd60f974336ed68b669769c164d44"
-		_DA_KEY := os.Getenv("NEAR_DA_KEY")
+		_DA_KEY = os.Getenv("NEAR_DA_KEY")
 	}
 
 	return _DA_KEY, _DA_CONTRACT, _DA_ACCOUNT
