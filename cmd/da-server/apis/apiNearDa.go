@@ -35,7 +35,7 @@ func GetNearDaConfig() (string, string, string) {
 		_DA_KEY = os.Getenv("NEAR_DA_KEY")
 	}
 
-	return _DA_KEY, _DA_CONTRACT, _DA_ACCOUNT
+	return _DA_ACCOUNT, _DA_CONTRACT, _DA_KEY
 
 }
 
