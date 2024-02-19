@@ -33,5 +33,30 @@ func main() {
 	apiNearDa.HandleFunc("/store", apis.ApiStoreNearDA).Methods("POST", "GET")
 	apiNearDa.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetNearDA).Methods("GET")
 
+	// Avail:
+	apiAvail := router.PathPrefix("/avail").Subrouter()
+	apiAvail.HandleFunc("/store", apis.ApiStoreAvail).Methods("POST", "GET")
+	apiAvail.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetAvail).Methods("GET")
+
+	// jackal:
+	apiJackal := router.PathPrefix("/Jackal").Subrouter()
+	apiJackal.HandleFunc("/store", apis.ApiStoreJackal).Methods("POST", "GET")
+	apiJackal.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetJackal).Methods("GET")
+
+	//Arweave
+	apiArweave := router.PathPrefix("/arweave").Subrouter()
+	apiArweave.HandleFunc("/store", apis.ApiStoreArweave).Methods("POST", "GET")
+	apiArweave.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetArweave).Methods("GET")
+
+	//FileCoin
+	apiFileCoin := router.PathPrefix("/filecoin").Subrouter()
+	apiFileCoin.HandleFunc("/store", apis.ApiStoreFileCoin).Methods("POST", "GET")
+	apiFileCoin.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetFileCoin).Methods("GET")
+
+	//Syscoin
+	apiSysCoin := router.PathPrefix("/syscoin").Subrouter()
+	apiSysCoin.HandleFunc("/store", apis.ApiStoreSysCoin).Methods("POST", "GET")
+	apiSysCoin.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetSysCoin).Methods("GET")
+
 	log.Fatal(http.ListenAndServe("0.0.0.0:22258", router))
 }
