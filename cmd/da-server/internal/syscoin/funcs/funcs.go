@@ -2,6 +2,7 @@ package funcs
 
 import (
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
@@ -13,6 +14,11 @@ import (
 type SyscoinConfig struct {
 	rpcURL  string
 	chainId string
+}
+
+type SyscoinRPCResp struct {
+	jsonrpc string
+	result  string
 }
 
 func getSyscoinConfig() (config SyscoinConfig) {
@@ -28,8 +34,40 @@ func getSyscoinConfig() (config SyscoinConfig) {
 	return config
 }
 
-func UploadData(fileName string, data []byte) (string, error) {
-	return "", nil
+func UploadData(data []byte) (string, error) {
+	config := getSyscoinConfig()
+	client := &http.Client{}
+	dataBlobInHex := hex.EncodeToString(data)
+	requestData := `{"jsonrpc": "1.0", "method": "syscoincreatenevmblob", "params": ["` + dataBlobInHex + `"]}`
+	jsonData, err := json.Marshal(requestData)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	req, err := http.NewRequest(
+		"POST",
+		config.rpcURL,
+		bytes.NewReader(jsonData),
+	)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	req.Header.Add("accept", "application/json")
+	req.Header.Add("content-type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	respData := SyscoinRPCResp{}
+	err = json.Unmarshal(body, &respData)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	return respData.result, nil
 }
 
 func GetData(hash string) ([]byte, error) {
@@ -61,5 +99,17 @@ func GetData(hash string) ([]byte, error) {
 	}
 
 	fmt.Println("body", string(body))
-	return body, nil
+
+	respData := SyscoinRPCResp{}
+	err = json.Unmarshal(body, &respData)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	data, err := hex.DecodeString(respData.result)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return data, nil
 }
