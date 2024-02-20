@@ -22,9 +22,7 @@ const (
 )
 
 func ApiStoreEigenda(w http.ResponseWriter, r *http.Request) {
-
-	data := RequestData{}
-	err := json.NewDecoder(r.Body).Decode(&data)
+	data, err := DecodeReqBody(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

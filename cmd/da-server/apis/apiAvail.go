@@ -2,7 +2,6 @@ package apis
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	_avail "github.com/celestiaorg/celestia-node/cmd/da-server/internal/avail/funcs"
 	"github.com/gorilla/mux"
@@ -13,9 +12,7 @@ import (
 const NAMESPACE_AVAIL = "avail"
 
 func ApiStoreAvail(w http.ResponseWriter, r *http.Request) {
-
-	data := RequestData{}
-	err := json.NewDecoder(r.Body).Decode(&data)
+	data, err := DecodeReqBody(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

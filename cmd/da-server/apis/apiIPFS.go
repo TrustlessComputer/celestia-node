@@ -2,7 +2,6 @@ package apis
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	_ipfs "github.com/celestiaorg/celestia-node/cmd/da-server/internal/ipfs/funcs"
 	"github.com/gorilla/mux"
@@ -15,9 +14,7 @@ const (
 )
 
 func ApiStoreIPFS(w http.ResponseWriter, r *http.Request) {
-
-	data := RequestData{}
-	err := json.NewDecoder(r.Body).Decode(&data)
+	data, err := DecodeReqBody(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
