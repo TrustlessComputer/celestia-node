@@ -27,9 +27,6 @@ func ApiStoreCelestia(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	type RequestData struct {
-		Data string `json:"data"`
-	}
 	data := RequestData{}
 	err = json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {

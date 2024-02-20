@@ -80,9 +80,6 @@ func ConvertDataToHex(data []byte) (uint64, string, error) {
 
 func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
 
-	type RequestData struct {
-		Data string `json:"data"`
-	}
 	data := RequestData{}
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {

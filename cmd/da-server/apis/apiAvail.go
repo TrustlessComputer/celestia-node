@@ -13,9 +13,7 @@ import (
 const NAMESPACE_AVAIL = "avail"
 
 func ApiStoreAvail(w http.ResponseWriter, r *http.Request) {
-	type RequestData struct {
-		Data string `json:"data"`
-	}
+
 	data := RequestData{}
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
