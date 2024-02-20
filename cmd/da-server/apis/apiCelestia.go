@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"github.com/celestiaorg/celestia-node/api/rpc/client"
 	"github.com/celestiaorg/celestia-node/blob"
@@ -21,17 +20,12 @@ var CELESTIS_NODE = "http://localhost:26658"
 var JWTToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJwdWJsaWMiLCJyZWFkIiwid3JpdGUiLCJhZG1pbiJdfQ.D1NtqUqJIX_FzFgiapuX3GMJoSeCT1-tg7XmxdlZmA0"
 
 func ApiStoreCelestia(w http.ResponseWriter, r *http.Request) {
-
 	client, err := client.NewClient(context.Background(), CELESTIS_NODE, JWTToken)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	type RequestData struct {
-		Data string `json:"data"`
-	}
-	data := RequestData{}
-	err = json.NewDecoder(r.Body).Decode(&data)
+	data, err := DecodeReqBody(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

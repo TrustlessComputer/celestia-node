@@ -22,3 +22,5 @@ coverage.txt
 go.work
 
 cmd/da-server/daserver
+cmd/da-server/ar-wl.json
+cmd/da-server/debug.test1395303032
