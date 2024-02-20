@@ -1,6 +1,6 @@
 package apis
 
-import (
+/*import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -121,4 +121,4 @@ func getJackalWalletConfig() (seedPhrase string, rpcURL string, chainID string) 
 func ApiGetJackal(w http.ResponseWriter, r *http.Request) {
 	//TODO - implement me
 	return
-}
+}*/
