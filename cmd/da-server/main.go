@@ -49,9 +49,9 @@ func main() {
 	apiArweave.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetArweave).Methods("GET")
 
 	// IPFS - pinata
-	apiIPFS := router.PathPrefix("/filecoin").Subrouter()
+	apiIPFS := router.PathPrefix("/ipfs").Subrouter()
 	apiIPFS.HandleFunc("/store", apis.ApiStoreIPFS).Methods("POST", "GET")
-	apiIPFS.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetIPFS).Methods("GET")
+	apiIPFS.HandleFunc("/get/{namespace}/{ipfsHash}", apis.ApiGetIPFS).Methods("GET")
 
 	//FileCoin
 	apiFileCoin := router.PathPrefix("/filecoin").Subrouter()
