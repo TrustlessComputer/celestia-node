@@ -27,7 +27,7 @@ func ApiStoreSysCoin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resultHex, err := _syscoin.UploadData("", decodedBytes)
+	resultHex, err := _syscoin.UploadData(decodedBytes)
 	if err != nil {
 		fmt.Println("submit err:", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)

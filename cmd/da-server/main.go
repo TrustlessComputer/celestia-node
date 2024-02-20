@@ -54,20 +54,10 @@ func main() {
 	//apiJackal.HandleFunc("/store", apis.ApiStoreJackal).Methods("POST", "GET")
 	//apiJackal.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetJackal).Methods("GET")
 
-	// Arweave da: TODO
-	apiArweave := router.PathPrefix("/arweave").Subrouter()
-	apiArweave.HandleFunc("/store", apis.ApiStoreArweave).Methods("POST", "GET")
-	apiArweave.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetArweave).Methods("GET")
-
 	// IPFS - pinata
 	apiIPFS := router.PathPrefix("/ipfs").Subrouter()
 	apiIPFS.HandleFunc("/store", apis.ApiStoreIPFS).Methods("POST", "GET")
 	apiIPFS.HandleFunc("/get/{namespace}/{ipfsHash}", apis.ApiGetIPFS).Methods("GET")
-
-	//FileCoin da: TODO
-	apiFileCoin := router.PathPrefix("/filecoin").Subrouter()
-	apiFileCoin.HandleFunc("/store", apis.ApiStoreFileCoin).Methods("POST", "GET")
-	apiFileCoin.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetFileCoin).Methods("GET")
 
 	//Syscoin da: TODO
 	apiSysCoin := router.PathPrefix("/syscoin").Subrouter()

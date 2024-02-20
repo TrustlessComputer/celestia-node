@@ -81,6 +81,7 @@ require (
 	github.com/DataDog/zstd v1.5.2 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/bits-and-blooms/bitset v1.7.0 // indirect
+	github.com/btcsuite/btcd/btcutil v1.1.3 // indirect
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2 // indirect
 	github.com/celestiaorg/quantum-gravity-bridge/v2 v2.1.2 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
@@ -92,22 +93,43 @@ require (
 	github.com/decred/base58 v1.0.4 // indirect
 	github.com/decred/dcrd/crypto/blake256 v1.0.1 // indirect
 	github.com/ethereum/c-kzg-4844 v0.3.1 // indirect
+	github.com/everFinance/arseeding v1.0.3 // indirect
+	github.com/everFinance/ethrpc v1.0.4 // indirect
+	github.com/everFinance/goar v1.5.8 // indirect
+	github.com/everFinance/goether v1.1.9 // indirect
+	github.com/everFinance/gojwk v1.0.0 // indirect
+	github.com/everFinance/ttcrsa v1.1.3 // indirect
 	github.com/getsentry/sentry-go v0.18.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
+	github.com/hamba/avro v1.5.6 // indirect
 	github.com/hashicorp/golang-lru/arc/v2 v2.0.5 // indirect
+	github.com/inconshreveable/log15 v0.0.0-20201112154412-8562bdadbbac // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.4 // indirect
+	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/panjf2000/ants/v2 v2.6.0 // indirect
 	github.com/pierrec/xxHash v0.1.5 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
+	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/smartystreets/assertions v1.13.0 // indirect
 	github.com/supranational/blst v0.3.11 // indirect
+	github.com/tidwall/gjson v1.14.4 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/vedhavyas/go-subkey/v2 v2.0.0 // indirect
 	go.uber.org/mock v0.3.0 // indirect
+	gopkg.in/h2non/gentleman.v2 v2.0.5 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
+	gorm.io/datatypes v1.0.1 // indirect
+	gorm.io/gorm v1.22.4 // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 )
 
