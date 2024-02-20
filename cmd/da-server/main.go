@@ -33,7 +33,7 @@ func main() {
 	apiNearDa.HandleFunc("/store", apis.ApiStoreNearDA).Methods("POST", "GET")
 	apiNearDa.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetNearDA).Methods("GET")
 
-	//FileCoin
+	//FileCoin da: TODO
 	apiFileCoin := router.PathPrefix("/filecoin").Subrouter()
 	apiFileCoin.HandleFunc("/store", apis.ApiStoreFileCoin).Methods("POST", "GET")
 	apiFileCoin.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetFileCoin).Methods("GET")
