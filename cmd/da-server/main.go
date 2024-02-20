@@ -29,9 +29,20 @@ func main() {
 	apiEigenda.HandleFunc("/get/{namespace}/{index}/{headerHash}", apis.ApiGetEigenda).Methods("GET")
 
 	// near da:
-	apiNearDa := router.PathPrefix("/nearda").Subrouter()
-	apiNearDa.HandleFunc("/store", apis.ApiStoreNearDA).Methods("POST", "GET")
-	apiNearDa.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetNearDA).Methods("GET")
+	// TODO - remove be for push
+	//apiNearDa := router.PathPrefix("/nearda").Subrouter()
+	//apiNearDa.HandleFunc("/store", apis.ApiStoreNearDA).Methods("POST", "GET")
+	//apiNearDa.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetNearDA).Methods("GET")
+
+	//FileCoin
+	apiFileCoin := router.PathPrefix("/filecoin").Subrouter()
+	apiFileCoin.HandleFunc("/store", apis.ApiStoreFileCoin).Methods("POST", "GET")
+	apiFileCoin.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetFileCoin).Methods("GET")
+
+	//Arweave
+	apiArweave := router.PathPrefix("/arweave").Subrouter()
+	apiArweave.HandleFunc("/store", apis.ApiStoreArweave).Methods("POST", "GET")
+	apiArweave.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetArweave).Methods("GET")
 
 	// Avail da: TODO
 	apiAvail := router.PathPrefix("/avail").Subrouter()

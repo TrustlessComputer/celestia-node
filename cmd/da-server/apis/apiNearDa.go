@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -78,7 +79,12 @@ func ConvertDataToHex(data []byte) (uint64, string, error) {
 }
 
 func ApiStoreNearDA(w http.ResponseWriter, r *http.Request) {
-	data, err := DecodeReqBody(r)
+
+	type RequestData struct {
+		Data string `json:"data"`
+	}
+	data := RequestData{}
+	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
