@@ -93,7 +93,7 @@ func ApiStoreJackal(w http.ResponseWriter, r *http.Request) {
 	_ = fids
 
 	w.WriteHeader(http.StatusOK)
-	_, err = w.Write([]byte(fmt.Sprintf("/%s/%s", NAMESPACE_1, fileName)))
+	_, err = w.Write([]byte(fmt.Sprintf("/%s/%s", NAMESPACE_JACKAL, fileName)))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
