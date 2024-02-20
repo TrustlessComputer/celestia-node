@@ -29,10 +29,9 @@ func main() {
 	apiEigenda.HandleFunc("/get/{namespace}/{index}/{headerHash}", apis.ApiGetEigenda).Methods("GET")
 
 	// near da:
-	// TODO - remove be for push
-	//apiNearDa := router.PathPrefix("/nearda").Subrouter()
-	//apiNearDa.HandleFunc("/store", apis.ApiStoreNearDA).Methods("POST", "GET")
-	//apiNearDa.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetNearDA).Methods("GET")
+	apiNearDa := router.PathPrefix("/nearda").Subrouter()
+	apiNearDa.HandleFunc("/store", apis.ApiStoreNearDA).Methods("POST", "GET")
+	apiNearDa.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetNearDA).Methods("GET")
 
 	//FileCoin
 	apiFileCoin := router.PathPrefix("/filecoin").Subrouter()
