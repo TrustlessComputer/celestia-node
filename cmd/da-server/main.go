@@ -39,7 +39,7 @@ func main() {
 	apiAvail.HandleFunc("/get/{namespace}/{txIndex}/{blockHash}", apis.ApiGetAvail).Methods("GET")
 
 	// jackal:
-	apiJackal := router.PathPrefix("/Jackal").Subrouter()
+	apiJackal := router.PathPrefix("/jackal").Subrouter()
 	apiJackal.HandleFunc("/store", apis.ApiStoreJackal).Methods("POST", "GET")
 	apiJackal.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetJackal).Methods("GET")
 
