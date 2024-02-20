@@ -33,17 +33,17 @@ func main() {
 	apiNearDa.HandleFunc("/store", apis.ApiStoreNearDA).Methods("POST", "GET")
 	apiNearDa.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetNearDA).Methods("GET")
 
-	// Avail:
+	// Avail da: TODO
 	apiAvail := router.PathPrefix("/avail").Subrouter()
 	apiAvail.HandleFunc("/store", apis.ApiStoreAvail).Methods("POST", "GET")
 	apiAvail.HandleFunc("/get/{namespace}/{txIndex}/{blockHash}", apis.ApiGetAvail).Methods("GET")
 
-	// jackal:
+	// Jackal da: TODO
 	//apiJackal := router.PathPrefix("/jackal").Subrouter()
 	//apiJackal.HandleFunc("/store", apis.ApiStoreJackal).Methods("POST", "GET")
 	//apiJackal.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetJackal).Methods("GET")
 
-	//Arweave
+	// Arweave da: TODO
 	apiArweave := router.PathPrefix("/arweave").Subrouter()
 	apiArweave.HandleFunc("/store", apis.ApiStoreArweave).Methods("POST", "GET")
 	apiArweave.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetArweave).Methods("GET")
@@ -53,12 +53,12 @@ func main() {
 	apiIPFS.HandleFunc("/store", apis.ApiStoreIPFS).Methods("POST", "GET")
 	apiIPFS.HandleFunc("/get/{namespace}/{ipfsHash}", apis.ApiGetIPFS).Methods("GET")
 
-	//FileCoin
+	//FileCoin da: TODO
 	apiFileCoin := router.PathPrefix("/filecoin").Subrouter()
 	apiFileCoin.HandleFunc("/store", apis.ApiStoreFileCoin).Methods("POST", "GET")
 	apiFileCoin.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetFileCoin).Methods("GET")
 
-	//Syscoin
+	//Syscoin da: TODO
 	apiSysCoin := router.PathPrefix("/syscoin").Subrouter()
 	apiSysCoin.HandleFunc("/store", apis.ApiStoreSysCoin).Methods("POST", "GET")
 	apiSysCoin.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetSysCoin).Methods("GET")
