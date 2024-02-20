@@ -38,7 +38,7 @@ func ApiStoreArweave(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = w.Write([]byte(fmt.Sprintf("/%s/%s", NAMESPACE_ARWEAVE, hash)))
+	_, err = w.Write([]byte(fmt.Sprintf("/%s/%s", NAMESPACE_ARWEAVE, *hash)))
 	return
 
 }

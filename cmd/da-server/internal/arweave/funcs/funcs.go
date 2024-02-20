@@ -2,6 +2,7 @@ package funcs
 
 import (
 	b64 "encoding/base64"
+	"fmt"
 	"github.com/celestiaorg/celestia-node/cmd/da-server/internal/arweave/config"
 	"github.com/everFinance/goar"
 	"github.com/everFinance/goar/types"
@@ -62,13 +63,35 @@ func storeData(wallet *goar.Wallet, data []byte) (*string, error) {
 }
 
 func GetData(hash string) ([]byte, error) {
-	//TODO - implement me
+	wl, err := Wallet()
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	base64Data, err := getData(wl, hash)
+	if err != nil {
+		return nil, err
+	}
+
+	rawDecodedText, err := b64.StdEncoding.DecodeString(string(base64Data))
+	if err != nil {
+		//trick the short data
+		rawDecodedText, err = b64.StdEncoding.DecodeString(fmt.Sprintf("%s=", string(base64Data)))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return rawDecodedText, nil
+
 }
 
 func getData(wallet *goar.Wallet, hash string) ([]byte, error) {
 	//TODO - implement me
+	_b, err := wallet.Client.GetTransactionData(hash)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	return _b, nil
 }
