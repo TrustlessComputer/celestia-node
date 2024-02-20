@@ -3,7 +3,6 @@ package funcs
 import (
 	b64 "encoding/base64"
 	"github.com/celestiaorg/celestia-node/cmd/da-server/internal/arweave/config"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/everFinance/goar"
 	"github.com/everFinance/goar/types"
 	"os"
@@ -17,8 +16,6 @@ func GetConfig() config.Config {
 }
 
 func Wallet() (*goar.Wallet, error) {
-	spew.Dump(os.Getenv("ARWEAVE_WALLET"))
-
 	cnf := GetConfig()
 	sEnc, err := b64.StdEncoding.DecodeString(cnf.WalletFile)
 	if err != nil {
