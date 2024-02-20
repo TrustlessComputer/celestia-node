@@ -61,7 +61,7 @@ func main() {
 	//Syscoin da: TODO
 	apiSysCoin := router.PathPrefix("/syscoin").Subrouter()
 	apiSysCoin.HandleFunc("/store", apis.ApiStoreSysCoin).Methods("POST", "GET")
-	apiSysCoin.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetSysCoin).Methods("GET")
+	apiSysCoin.HandleFunc("/get/{namespace}/{versionhash_or_txid}", apis.ApiGetSysCoin).Methods("GET")
 
 	log.Fatal(http.ListenAndServe("0.0.0.0:22258", router))
 }

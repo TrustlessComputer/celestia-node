@@ -3,7 +3,8 @@ package apis
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/celestiaorg/celestia-node/cmd/da-server/internal/syscoin/funcs"
+	_syscoin "github.com/celestiaorg/celestia-node/cmd/da-server/internal/syscoin/funcs"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
@@ -26,7 +27,7 @@ func ApiStoreSysCoin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resultHex, err := funcs.UploadData("", decodedBytes)
+	resultHex, err := _syscoin.UploadData("", decodedBytes)
 	if err != nil {
 		fmt.Println("submit err:", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -44,6 +45,25 @@ func ApiStoreSysCoin(w http.ResponseWriter, r *http.Request) {
 }
 
 func ApiGetSysCoin(w http.ResponseWriter, r *http.Request) {
-	//TODO - implement me
+	vars := mux.Vars(r)
+
+	namespace := vars["namespace"]
+	if len(namespace) > 10 {
+		namespace = namespace[:10]
+	}
+
+	versionhash_or_txid := vars["versionhash_or_txid"]
+
+	data, err := _syscoin.GetData(versionhash_or_txid)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	_, err = w.Write(data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	return
 }
