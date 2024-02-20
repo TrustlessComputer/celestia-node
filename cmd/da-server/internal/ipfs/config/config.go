@@ -1,0 +1,15 @@
+package config
+
+type Config struct {
+	JWT    string
+	API    string
+	GetAPI string
+}
+
+func GetConfig() Config {
+	return Config{
+		API:    "https://api.pinata.cloud",
+		GetAPI: "https://nbc-alpha.mypinata.cloud/ipfs",
+		JWT:    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIxYTM1ZGQ4MC0xY2I1LTRmZmYtODI2OS03MTkzZjM3Zjg3MTEiLCJlbWFpbCI6InN5bnhAdHJ1c3RsZXNzLmNvbXB1dGVyIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siaWQiOiJGUkExIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9LHsiaWQiOiJOWUMxIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjAyZjBlODRhNmYwZTM5NGJjYmU4Iiwic2NvcGVkS2V5U2VjcmV0IjoiYThjYzkyMTgwOWU4N2I0ZmEyZGYxNGI5MDMzNWRhZWFlMDRmYjhmNGRkNzI4NmZmYzNlMmNhZmU2M2FlNzBmNCIsImlhdCI6MTcwODQwMzI4NH0.76ZhR7yxNKpFzGivKGfWWJFAPL7TGbYnnmwGCXARdCU",
+	}
+}

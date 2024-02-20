@@ -1,9 +1,13 @@
 package apis
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	_ipfs "github.com/celestiaorg/celestia-node/cmd/da-server/internal/ipfs/funcs"
+	"github.com/gorilla/mux"
 	"net/http"
+	"time"
 )
 
 const (
@@ -11,7 +15,7 @@ const (
 )
 
 func ApiStoreIPFS(w http.ResponseWriter, r *http.Request) {
-	apiKey := ""
+
 	type RequestData struct {
 		Data string `json:"data"`
 	}
@@ -21,8 +25,14 @@ func ApiStoreIPFS(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	//TODO - implement me
-	ipfsHash, err := UploadData(apiKey, "", []byte(data.Data))
+
+	rawDecodedText, err := base64.StdEncoding.DecodeString(data.Data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	ipfsHash, err := _ipfs.UploadData(fmt.Sprintf("f-%d", time.Now().UnixMicro()), rawDecodedText)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -33,6 +43,25 @@ func ApiStoreIPFS(w http.ResponseWriter, r *http.Request) {
 }
 
 func ApiGetIPFS(w http.ResponseWriter, r *http.Request) {
-	//TODO - implement me
+	vars := mux.Vars(r)
+
+	namespace := vars["namespace"]
+	if len(namespace) > 10 {
+		namespace = namespace[:10]
+	}
+
+	ipfsHash := vars["ipfsHash"]
+
+	data, err := _ipfs.GetData(ipfsHash)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	_, err = w.Write(data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	return
 }
