@@ -48,10 +48,10 @@ func main() {
 	apiAvail.HandleFunc("/store", apis.ApiStoreAvail).Methods("POST", "GET")
 	apiAvail.HandleFunc("/get/{namespace}/{txIndex}/{blockHash}", apis.ApiGetAvail).Methods("GET")
 
-	// Jackal da: TODO
-	//apiJackal := router.PathPrefix("/jackal").Subrouter()
-	//apiJackal.HandleFunc("/store", apis.ApiStoreJackal).Methods("POST", "GET")
-	//apiJackal.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetJackal).Methods("GET")
+	//Jackal DA
+	apiJackal := router.PathPrefix("/jackal").Subrouter()
+	apiJackal.HandleFunc("/store", apis.ApiStoreJackal).Methods("POST", "GET")
+	apiJackal.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetJackal).Methods("GET")
 
 	// IPFS - pinata
 	apiIPFS := router.PathPrefix("/ipfs").Subrouter()
