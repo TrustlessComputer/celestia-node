@@ -6,18 +6,10 @@ import (
 	"github.com/celestiaorg/celestia-node/cmd/da-server/internal/arweave/config"
 	"github.com/everFinance/goar"
 	"github.com/everFinance/goar/types"
-	"os"
 )
 
-func GetConfig() config.Config {
-	return config.Config{
-		RpcUrl:     "https://arweave.net",
-		WalletFile: os.Getenv("ARWEAVE_WALLET"),
-	}
-}
-
 func Wallet() (*goar.Wallet, error) {
-	cnf := GetConfig()
+	cnf := config.GetConfig()
 	sEnc, err := b64.StdEncoding.DecodeString(cnf.WalletFile)
 	if err != nil {
 		return nil, err
@@ -87,7 +79,6 @@ func GetData(hash string) ([]byte, error) {
 }
 
 func getData(wallet *goar.Wallet, hash string) ([]byte, error) {
-	//TODO - implement me
 	_b, err := wallet.Client.GetTransactionData(hash)
 	if err != nil {
 		return nil, err
