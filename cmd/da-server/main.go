@@ -36,7 +36,7 @@ func main() {
 	// Avail:
 	apiAvail := router.PathPrefix("/avail").Subrouter()
 	apiAvail.HandleFunc("/store", apis.ApiStoreAvail).Methods("POST", "GET")
-	apiAvail.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetAvail).Methods("GET")
+	apiAvail.HandleFunc("/get/{namespace}/{txIndex}/{blockHash}", apis.ApiGetAvail).Methods("GET")
 
 	// jackal:
 	apiJackal := router.PathPrefix("/Jackal").Subrouter()
