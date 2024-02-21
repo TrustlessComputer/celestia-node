@@ -80,26 +80,17 @@ func GetData(hash string) ([]byte, error) {
 		return nil, err
 	}
 
-	base64Data, err := getData(wl, hash)
+	data, err := getData(wl, hash)
 	if err != nil {
 		return nil, err
 	}
 
-	rawDecodedText, err := b64.StdEncoding.DecodeString(string(base64Data))
-	if err != nil {
-		//trick the short data
-		rawDecodedText, err = b64.StdEncoding.DecodeString(fmt.Sprintf("%s=", string(base64Data)))
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return rawDecodedText, nil
+	return data, nil
 
 }
 
 func getData(wallet *goar.Wallet, hash string) ([]byte, error) {
-	_b, err := wallet.Client.GetTransactionData(hash)
+	_b, err := wallet.Client.GetTransactionDataByGateway(hash)
 	if err != nil {
 		return nil, err
 	}
