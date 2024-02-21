@@ -8,27 +8,24 @@ import (
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"strconv"
 	"time"
 )
 
-// funcs
-func GetConfig() config.Config {
-	return config.Config{
-		Seed:   "verb jump guide coffee path squirrel hire verify gun robust rail fork",
-		ApiURL: "wss://goldberg.avail.tools/ws",
-		Size:   1000,
-		AppID:  0,
-		Dest:   "5H3qehpRTFiB3XwyTzYU43SpG7e8jW87vFug95fxdew76Vyi",
-		Amount: 10,
-	}
-}
-
 // submitData creates a transaction and makes a Avail data submission
 func SubmitData(data []byte) (*string, *uint32, error) {
-	cnf := GetConfig()
+	cnf := config.GetConfig()
 	//Size := cnf.Size
 	ApiURL := cnf.ApiURL
 	Seed := cnf.Seed
+	fee := cnf.Fee
+	feeInt := 1000000
+	if fee != "" {
+		feeInt1, err1 := strconv.Atoi(fee)
+		if err1 == nil {
+			feeInt = feeInt1
+		}
+	}
 	//AppID := cnf.AppID
 
 	api, err := gsrpc.NewSubstrateAPI(ApiURL)
@@ -86,13 +83,15 @@ func SubmitData(data []byte) (*string, *uint32, error) {
 		nonce = uint32(accountInfo.Nonce)
 	}
 
+	//tip := uint64(len(subData) / 10)
+	tip := uint64(feeInt)
 	o := types.SignatureOptions{
 		BlockHash:          genesisHash,
 		Era:                types.ExtrinsicEra{IsMortalEra: false},
 		GenesisHash:        genesisHash,
 		Nonce:              types.NewUCompactFromUInt(uint64(nonce)),
 		SpecVersion:        rv.SpecVersion,
-		Tip:                types.NewUCompactFromUInt(0),
+		Tip:                types.NewUCompactFromUInt(tip),
 		AppID:              types.NewUCompactFromUInt(uint64(cnf.AppID)),
 		TransactionVersion: rv.TransactionVersion,
 	}
@@ -111,7 +110,8 @@ func SubmitData(data []byte) (*string, *uint32, error) {
 	}
 
 	defer sub.Unsubscribe()
-	timeout := time.After(100 * time.Second)
+	//timeout := time.After(100 * time.Second)
+	timeout := time.After(300 * time.Second) //5 min
 	h := ""
 
 timeout_break:
@@ -147,7 +147,7 @@ timeout_break:
 }
 
 func QueryData(blockHash string, nonce int64) ([]byte, error) {
-	_config := GetConfig()
+	_config := config.GetConfig()
 	api, err := gsrpc.NewSubstrateAPI(_config.ApiURL)
 	if err != nil {
 		return nil, err
@@ -160,12 +160,26 @@ func QueryData(blockHash string, nonce int64) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	dataBytes, err := hex.DecodeString(data)
-	if err != nil {
-		return nil, err
+
+	n := 1
+	for {
+		str := string(data)
+		slice := str[n:]
+
+		dataBytes, err := hex.DecodeString(slice)
+		if err != nil {
+			n++
+			continue
+		}
+
+		if n >= len(str) {
+			break
+		}
+
+		return dataBytes, nil
 	}
 
-	return dataBytes, nil
+	return []byte{}, nil
 }
 
 // getData extracts data from the block and compares it
@@ -174,36 +188,36 @@ func getData(hash types.Hash, api *gsrpc.SubstrateAPI, data string) error {
 	if err != nil {
 		return fmt.Errorf("cannot get block by hash:%w", err)
 	}
-	for _, ext := range block.Block.Extrinsics {
-		// these values below are specific indexes only for data submission, differs with each extrinsic
-		if ext.Method.CallIndex.SectionIndex == 29 && ext.Method.CallIndex.MethodIndex == 1 {
-			arg := ext.Method.Args
-			str := string(arg)
-			slice := str[2:]
-			fmt.Println("string value", slice)
-			fmt.Println("data", data)
-			if slice == data {
-				fmt.Println("Data found in block")
-			}
-		}
-	}
+
+	_ = block
+	//for _, ext := range block.Block.Extrinsics {
+	//	// these values below are specific indexes only for data submission, differs with each extrinsic
+	//	if ext.Method.CallIndex.SectionIndex == 29 && ext.Method.CallIndex.MethodIndex == 1 {
+	//		arg := ext.Method.Args
+	//		str := string(arg)
+	//		slice := str[2:]
+	//		fmt.Println("string value", slice)
+	//		fmt.Println("data", data)
+	//		if slice == data {
+	//			fmt.Println("Data found in block")
+	//		}
+	//	}
+	//}
+
 	return nil
 }
 
-func getDataString(hash types.Hash, index int64, api *gsrpc.SubstrateAPI) (string, error) {
+func getDataString(hash types.Hash, index int64, api *gsrpc.SubstrateAPI) ([]byte, error) {
 	block, err := api.RPC.Chain.GetBlock(hash)
 	if err != nil {
-		return "", fmt.Errorf("cannot get block by hash:%w", err)
+		return nil, fmt.Errorf("cannot get block by hash:%w", err)
 	}
 	for _, ext := range block.Block.Extrinsics {
 		// these values below are specific indexes only for data submission, differs with each extrinsic
 		if ext.Method.CallIndex.SectionIndex == 29 && ext.Method.CallIndex.MethodIndex == 1 && ext.Signature.Nonce.Int64() == index {
 			arg := ext.Method.Args
-			str := string(arg)
-			slice := str[1:]
-			fmt.Println("string value", slice)
-			return slice, nil
+			return arg, nil
 		}
 	}
-	return "", nil
+	return []byte{}, nil
 }
