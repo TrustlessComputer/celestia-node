@@ -99,7 +99,8 @@ func SubmitData(data []byte) (*string, *uint32, error) {
 	}
 
 	defer sub.Unsubscribe()
-	timeout := time.After(100 * time.Second)
+	//timeout := time.After(100 * time.Second)
+	timeout := time.After(600 * time.Second) //5 min
 	h := ""
 
 timeout_break:
@@ -148,9 +149,21 @@ func QueryData(blockHash string, nonce int64) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	dataBytes, err := hex.DecodeString(data)
+
+	str := string(data)
+	slice := str[2:]
+
+	dataBytes, err := hex.DecodeString(slice)
 	if err != nil {
-		return nil, err
+		str = string(data)
+		slice = str[1:]
+		dataBytes, err = hex.DecodeString(slice)
+		if err != nil {
+			return nil, err
+		}
+
+		return dataBytes, nil
+
 	}
 
 	return dataBytes, nil
@@ -162,36 +175,36 @@ func getData(hash types.Hash, api *gsrpc.SubstrateAPI, data string) error {
 	if err != nil {
 		return fmt.Errorf("cannot get block by hash:%w", err)
 	}
-	for _, ext := range block.Block.Extrinsics {
-		// these values below are specific indexes only for data submission, differs with each extrinsic
-		if ext.Method.CallIndex.SectionIndex == 29 && ext.Method.CallIndex.MethodIndex == 1 {
-			arg := ext.Method.Args
-			str := string(arg)
-			slice := str[2:]
-			fmt.Println("string value", slice)
-			fmt.Println("data", data)
-			if slice == data {
-				fmt.Println("Data found in block")
-			}
-		}
-	}
+
+	_ = block
+	//for _, ext := range block.Block.Extrinsics {
+	//	// these values below are specific indexes only for data submission, differs with each extrinsic
+	//	if ext.Method.CallIndex.SectionIndex == 29 && ext.Method.CallIndex.MethodIndex == 1 {
+	//		arg := ext.Method.Args
+	//		str := string(arg)
+	//		slice := str[2:]
+	//		fmt.Println("string value", slice)
+	//		fmt.Println("data", data)
+	//		if slice == data {
+	//			fmt.Println("Data found in block")
+	//		}
+	//	}
+	//}
+
 	return nil
 }
 
-func getDataString(hash types.Hash, index int64, api *gsrpc.SubstrateAPI) (string, error) {
+func getDataString(hash types.Hash, index int64, api *gsrpc.SubstrateAPI) ([]byte, error) {
 	block, err := api.RPC.Chain.GetBlock(hash)
 	if err != nil {
-		return "", fmt.Errorf("cannot get block by hash:%w", err)
+		return nil, fmt.Errorf("cannot get block by hash:%w", err)
 	}
 	for _, ext := range block.Block.Extrinsics {
 		// these values below are specific indexes only for data submission, differs with each extrinsic
 		if ext.Method.CallIndex.SectionIndex == 29 && ext.Method.CallIndex.MethodIndex == 1 && ext.Signature.Nonce.Int64() == index {
 			arg := ext.Method.Args
-			str := string(arg)
-			slice := str[2:]
-			fmt.Println("string value", slice)
-			return slice, nil
+			return arg, nil
 		}
 	}
-	return "", nil
+	return []byte{}, nil
 }
