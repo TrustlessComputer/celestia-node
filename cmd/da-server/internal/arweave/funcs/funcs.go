@@ -6,6 +6,7 @@ import (
 	"github.com/celestiaorg/celestia-node/cmd/da-server/internal/arweave/config"
 	"github.com/everFinance/goar"
 	"github.com/everFinance/goar/types"
+	"time"
 )
 
 func Wallet() (*goar.Wallet, error) {
@@ -27,12 +28,31 @@ func StoreData(data []byte) (*string, error) {
 		return nil, err
 	}
 
-	tx, err := storeData(wl, data)
+	txId, err := storeData(wl, data)
 	if err != nil {
 		return nil, err
 	}
 
-	return tx, nil
+	// waiting here for get completed tx
+	errTx := goar.ErrPendingTx
+	// try 10 times for making sure tx success
+	for i := 0; i < 100; i++ {
+		if errTx != nil {
+			_, errTx = getData(wl, *txId)
+			if errTx != nil {
+				fmt.Printf("try get arwear txid=%s status %v", *txId, errTx)
+			}
+		} else {
+			break
+		}
+		time.Sleep(6 * time.Second) // max time is 60s
+	}
+	if errTx != nil {
+		fmt.Printf("err arwear txid=%s err %v", *txId, errTx)
+		return nil, errTx
+	}
+	fmt.Printf("arwear txid=%s", *txId)
+	return txId, nil
 }
 
 func storeData(wallet *goar.Wallet, data []byte) (*string, error) {
@@ -41,8 +61,8 @@ func storeData(wallet *goar.Wallet, data []byte) (*string, error) {
 		data, // Data bytes
 		[]types.Tag{
 			types.Tag{
-				Name:  "testSendData",
-				Value: "123",
+				Name:  "bvm.network",
+				Value: "arweave-da",
 			},
 		},
 	)
