@@ -46,7 +46,8 @@ func ApiStoreJackal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s := storage_handler.NewStorageHandler(wallet.WithGas("500000"))
+	wallet = wallet.WithGas("500000")
+	s := storage_handler.NewStorageHandler(wallet)
 	_, err = s.BuyStorage(wallet.GetAddress(), 720, 2)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
