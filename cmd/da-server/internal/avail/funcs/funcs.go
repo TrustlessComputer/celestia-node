@@ -3,10 +3,10 @@ package funcs
 import (
 	"fmt"
 	"github.com/celestiaorg/celestia-node/cmd/da-server/internal/avail/config"
-	"github.com/celestiaorg/celestia-node/cmd/da-server/internal/avail/extrinsics"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"github.com/davecgh/go-spew/spew"
 	"time"
 )
 
@@ -14,7 +14,7 @@ import (
 func GetConfig() config.Config {
 	return config.Config{
 		Seed:   "verb jump guide coffee path squirrel hire verify gun robust rail fork",
-		ApiURL: "https://goldberg.avail.tools/api",
+		ApiURL: "wss://goldberg.avail.tools/ws",
 		Size:   1000,
 		AppID:  0,
 		Dest:   "5H3qehpRTFiB3XwyTzYU43SpG7e8jW87vFug95fxdew76Vyi",
@@ -23,21 +23,118 @@ func GetConfig() config.Config {
 }
 
 // submitData creates a transaction and makes a Avail data submission
-func SubmitData() error {
+func SubmitData(data []byte) (*string, *uint32, error) {
 	cnf := GetConfig()
+	//Size := cnf.Size
+	ApiURL := cnf.ApiURL
+	Seed := cnf.Seed
+	//AppID := cnf.AppID
 
-	api, err := gsrpc.NewSubstrateAPI(cnf.ApiURL)
+	api, err := gsrpc.NewSubstrateAPI(ApiURL)
 	if err != nil {
-		return fmt.Errorf("cannot create api:%w", err)
+		return nil, nil, fmt.Errorf("cannot create api:%w", err)
+	}
+
+	meta, err := api.RPC.State.GetMetadataLatest()
+	if err != nil {
+		return nil, nil, fmt.Errorf("cannot get metadata:%w", err)
 	}
 
 	// Set data and appID according to need
-	data, _ := extrinsics.RandToken(cnf.Size)
+	//data, _ := extrinsics.RandToken(size)
+	//appID := 0
+	//
+	//// if app id is greater than 0 then it must be created before submitting data
+	//if AppID != 0 {
+	//	appID = AppID
+	//}
 
-	finalizedBlockCh := make(chan types.Hash, 1)
-	go submitData(api, data, cnf.Seed, cnf.AppID, finalizedBlockCh)
+	c, err := types.NewCall(meta, "DataAvailability.submit_data", types.NewBytes(data))
+	if err != nil {
+		return nil, nil, fmt.Errorf("cannot create new call:%w", err)
+	}
 
-	return nil
+	// Create the extrinsic
+	ext := types.NewExtrinsic(c)
+
+	genesisHash, err := api.RPC.Chain.GetBlockHash(0)
+	if err != nil {
+		return nil, nil, fmt.Errorf("cannot get block hash:%w", err)
+	}
+
+	rv, err := api.RPC.State.GetRuntimeVersionLatest()
+	if err != nil {
+		return nil, nil, fmt.Errorf("cannot get runtime version:%w", err)
+	}
+
+	keyringPair, err := signature.KeyringPairFromSecret(Seed, 42)
+	if err != nil {
+		return nil, nil, fmt.Errorf("cannot create LeyPair:%w", err)
+	}
+
+	spew.Dump(string(keyringPair.PublicKey))
+	spew.Dump(keyringPair.Address)
+	spew.Dump(keyringPair.URI)
+
+	key, err := types.CreateStorageKey(meta, "System", "Account", keyringPair.PublicKey)
+	if err != nil {
+		return nil, nil, fmt.Errorf("cannot create storage key:%w", err)
+	}
+
+	var accountInfo types.AccountInfo
+	nonce := uint32(1)
+	ok, err := api.RPC.State.GetStorageLatest(key, &accountInfo)
+	if err == nil && ok {
+		nonce = uint32(accountInfo.Nonce)
+	}
+
+	o := types.SignatureOptions{
+		BlockHash:          genesisHash,
+		Era:                types.ExtrinsicEra{IsMortalEra: false},
+		GenesisHash:        genesisHash,
+		Nonce:              types.NewUCompactFromUInt(uint64(nonce) + 1),
+		SpecVersion:        rv.SpecVersion,
+		Tip:                types.NewUCompactFromUInt(0),
+		AppID:              types.NewUCompactFromUInt(uint64(0)),
+		TransactionVersion: rv.TransactionVersion,
+	}
+
+	// Sign the transaction using Alice's default account
+	err = ext.Sign(keyringPair, o)
+	if err != nil {
+		return nil, nil, fmt.Errorf("cannot sign:%w", err)
+	}
+
+	// Send the extrinsic
+	//block hash
+	sub, err := api.RPC.Author.SubmitAndWatchExtrinsic(ext)
+	if err != nil {
+		return nil, nil, fmt.Errorf("cannot submit extrinsic:%w", err)
+	}
+
+	defer sub.Unsubscribe()
+	timeout := time.After(100 * time.Second)
+	for {
+		select {
+		case status := <-sub.Chan():
+			if status.IsInBlock {
+				fmt.Printf("Txn inside block %v\n", status.AsInBlock.Hex())
+			} else if status.IsFinalized {
+				fmt.Printf("Txn inside finalized block\n")
+				hash := status.AsFinalized
+				err := getData(hash, api, string(data))
+				if err != nil {
+					panic(fmt.Sprintf("cannot get data:%v", err))
+				}
+				return nil, nil, err
+			}
+		case <-timeout:
+			fmt.Printf("timeout of 100 seconds reached without getting finalized status for extrinsic")
+			return nil, nil, err
+		}
+	}
+
+	return nil, nil, err
 }
 
 func QueryData(blockHash string, txIndex uint32) (*HeaderF, error) {
@@ -84,85 +181,24 @@ func QueryData(blockHash string, txIndex uint32) (*HeaderF, error) {
 	return &data, nil
 }
 
-func submitData(api *gsrpc.SubstrateAPI, data string, seed string, appID int, finalizedBlockCh chan types.Hash) error {
-	meta, err := api.RPC.State.GetMetadataLatest()
+// getData extracts data from the block and compares it
+func getData(hash types.Hash, api *gsrpc.SubstrateAPI, data string) error {
+	block, err := api.RPC.Chain.GetBlock(hash)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot get block by hash:%w", err)
 	}
-
-	c, err := types.NewCall(meta, "DataAvailability.submit_data", types.NewBytes([]byte(data)))
-	if err != nil {
-		return fmt.Errorf("error creating new call: %s", err)
-	}
-
-	// Create the extrinsic
-	ext := types.NewExtrinsic(c)
-
-	genesisHash, err := api.RPC.Chain.GetBlockHash(0)
-	if err != nil {
-		return fmt.Errorf("error getting genesis hash: %s", err)
-	}
-
-	rv, err := api.RPC.State.GetRuntimeVersionLatest()
-	if err != nil {
-		return fmt.Errorf("error retrieveing runtime version: %s", err)
-	}
-
-	keyringPair, err := signature.KeyringPairFromSecret(seed, 42)
-	if err != nil {
-		return fmt.Errorf("error creating keyring pair: %s", err)
-	}
-
-	key, err := types.CreateStorageKey(meta, "System", "Account", keyringPair.PublicKey)
-	if err != nil {
-		return fmt.Errorf("cannot create storage key:%w", err)
-	}
-
-	var accountInfo types.AccountInfo
-	ok, err := api.RPC.State.GetStorageLatest(key, &accountInfo)
-	if err != nil || !ok {
-		return fmt.Errorf("cannot get latest storage:%v", err)
-	}
-
-	nonce := uint32(accountInfo.Nonce)
-	options := types.SignatureOptions{
-		BlockHash:   genesisHash,
-		Era:         types.ExtrinsicEra{IsMortalEra: false},
-		GenesisHash: genesisHash,
-		Nonce:       types.NewUCompactFromUInt(uint64(nonce)),
-		SpecVersion: rv.SpecVersion,
-		Tip:         types.NewUCompactFromUInt(100),
-		//AppID:              types.NewUCompactFromUInt(uint64(appID)),
-		TransactionVersion: rv.TransactionVersion,
-	}
-
-	// Sign the transaction using Alice's default account
-	err = ext.Sign(keyringPair, options)
-	if err != nil {
-		return fmt.Errorf("cannot sign:%v", err)
-	}
-
-	// Send the extrinsic
-	sub, err := api.RPC.Author.SubmitAndWatchExtrinsic(ext)
-	if err != nil {
-		return fmt.Errorf("cannot submit extrinsic:%v", err)
-	}
-
-	defer sub.Unsubscribe()
-	timeout := time.After(100 * time.Second)
-	for {
-		select {
-		case status := <-sub.Chan():
-			if status.IsInBlock {
-				fmt.Printf("Txn inside block %v\n", status.AsInBlock.Hex())
-			} else if status.IsFinalized {
-				fmt.Printf("Txn inside finalized block\n")
-				finalizedBlockCh <- status.AsFinalized
-				return nil
+	for _, ext := range block.Block.Extrinsics {
+		// these values below are specific indexes only for data submission, differs with each extrinsic
+		if ext.Method.CallIndex.SectionIndex == 29 && ext.Method.CallIndex.MethodIndex == 1 {
+			arg := ext.Method.Args
+			str := string(arg)
+			slice := str[2:]
+			fmt.Println("string value", slice)
+			fmt.Println("data", data)
+			if slice == data {
+				fmt.Println("Data found in block")
 			}
-		case <-timeout:
-			fmt.Printf("timeout of 100 seconds reached without getting finalized status for extrinsic")
-			return nil
 		}
 	}
+	return nil
 }

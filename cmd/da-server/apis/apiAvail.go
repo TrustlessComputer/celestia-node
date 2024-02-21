@@ -25,7 +25,7 @@ func ApiStoreAvail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = decodedBytes
-	err = _avail.SubmitData()
+	_, _, err = _avail.SubmitData(decodedBytes)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

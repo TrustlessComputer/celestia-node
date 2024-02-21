@@ -15,7 +15,7 @@ require (
 	github.com/celestiaorg/go-libp2p-messenger v0.2.0
 	github.com/celestiaorg/nmt v0.20.0
 	github.com/celestiaorg/rsmt2d v0.11.0
-	github.com/centrifuge/go-substrate-rpc-client/v4 v4.2.1
+	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.12
 	github.com/cockroachdb/errors v1.9.1
 	github.com/cosmos/cosmos-sdk v0.46.14
 	github.com/cosmos/cosmos-sdk/api v0.1.0
@@ -397,3 +397,5 @@ replace (
 )
 
 replace github.com/dgraph-io/badger/v4 => github.com/celestiaorg/badger/v4 v4.0.0-20231125230536-2b9e13346f75
+
+replace github.com/centrifuge/go-substrate-rpc-client/v4 => github.com/availproject/go-substrate-rpc-client/v4 v4.1.0-avail-1.10.0
