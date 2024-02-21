@@ -100,7 +100,7 @@ func SubmitData(data []byte) (*string, *uint32, error) {
 
 	defer sub.Unsubscribe()
 	//timeout := time.After(100 * time.Second)
-	timeout := time.After(600 * time.Second) //5 min
+	timeout := time.After(300 * time.Second) //5 min
 	h := ""
 
 timeout_break:
