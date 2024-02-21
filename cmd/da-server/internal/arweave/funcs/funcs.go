@@ -42,7 +42,7 @@ func StoreData(data []byte) (*string, error) {
 		} else {
 			break
 		}
-		time.Sleep(6 * time.Second) // max time is 60s
+		time.Sleep(18 * time.Second) // max time is 60s
 	}
 	if errTx != nil {
 		fmt.Printf("err arwear txid=%s err %v", *txId, errTx)
