@@ -8,6 +8,7 @@ import (
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"strconv"
 	"time"
 )
 
@@ -17,6 +18,14 @@ func SubmitData(data []byte) (*string, *uint32, error) {
 	//Size := cnf.Size
 	ApiURL := cnf.ApiURL
 	Seed := cnf.Seed
+	fee := cnf.Fee
+	feeInt := 1000000
+	if fee != "" {
+		feeInt1, err1 := strconv.Atoi(fee)
+		if err1 == nil {
+			feeInt = feeInt1
+		}
+	}
 	//AppID := cnf.AppID
 
 	api, err := gsrpc.NewSubstrateAPI(ApiURL)
@@ -74,13 +83,15 @@ func SubmitData(data []byte) (*string, *uint32, error) {
 		nonce = uint32(accountInfo.Nonce)
 	}
 
+	//tip := uint64(len(subData) / 10)
+	tip := uint64(feeInt)
 	o := types.SignatureOptions{
 		BlockHash:          genesisHash,
 		Era:                types.ExtrinsicEra{IsMortalEra: false},
 		GenesisHash:        genesisHash,
 		Nonce:              types.NewUCompactFromUInt(uint64(nonce)),
 		SpecVersion:        rv.SpecVersion,
-		Tip:                types.NewUCompactFromUInt(0),
+		Tip:                types.NewUCompactFromUInt(tip),
 		AppID:              types.NewUCompactFromUInt(uint64(cnf.AppID)),
 		TransactionVersion: rv.TransactionVersion,
 	}
@@ -150,23 +161,25 @@ func QueryData(blockHash string, nonce int64) ([]byte, error) {
 		return nil, err
 	}
 
-	str := string(data)
-	slice := str[2:]
+	n := 1
+	for {
+		str := string(data)
+		slice := str[n:]
 
-	dataBytes, err := hex.DecodeString(slice)
-	if err != nil {
-		str = string(data)
-		slice = str[1:]
-		dataBytes, err = hex.DecodeString(slice)
+		dataBytes, err := hex.DecodeString(slice)
 		if err != nil {
-			return nil, err
+			n++
+			continue
+		}
+
+		if n >= len(str) {
+			break
 		}
 
 		return dataBytes, nil
-
 	}
 
-	return dataBytes, nil
+	return []byte{}, nil
 }
 
 // getData extracts data from the block and compares it
