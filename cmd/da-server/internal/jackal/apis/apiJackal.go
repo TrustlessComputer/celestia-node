@@ -21,7 +21,9 @@ const (
 	FOLDER_JACKAL    = "s/" + FOLDER_NAME
 )
 
-var wallet *wallet_handler.WalletHandler
+var (
+	wallet *wallet_handler.WalletHandler
+)
 
 func init() {
 	cfg := config.GetConfig()
