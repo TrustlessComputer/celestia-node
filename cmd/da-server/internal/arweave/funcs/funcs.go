@@ -27,12 +27,12 @@ func StoreData(data []byte) (*string, error) {
 		return nil, err
 	}
 
-	tx, err := storeData(wl, data)
+	txId, err := storeData(wl, data)
 	if err != nil {
 		return nil, err
 	}
 
-	return tx, nil
+	return txId, nil
 }
 
 func storeData(wallet *goar.Wallet, data []byte) (*string, error) {
@@ -41,8 +41,8 @@ func storeData(wallet *goar.Wallet, data []byte) (*string, error) {
 		data, // Data bytes
 		[]types.Tag{
 			types.Tag{
-				Name:  "testSendData",
-				Value: "123",
+				Name:  "bvm.network",
+				Value: "arweave-da",
 			},
 		},
 	)
