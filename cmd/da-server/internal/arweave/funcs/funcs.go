@@ -85,12 +85,21 @@ func GetData(hash string) ([]byte, error) {
 		return nil, err
 	}
 
+	//json
 	rawDecodedText, err := b64.StdEncoding.DecodeString(string(base64Data))
 	if err != nil {
-		//trick the short data
+		//json trick the short data
 		rawDecodedText, err = b64.StdEncoding.DecodeString(fmt.Sprintf("%s=", string(base64Data)))
 		if err != nil {
-			return nil, err
+
+			n, err := b64.StdEncoding.Decode(base64Data, base64Data)
+			_ = n
+			if err != nil {
+				return base64Data, nil
+			}
+
+			return base64Data, nil
+
 		}
 	}
 

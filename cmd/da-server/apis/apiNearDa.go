@@ -1,18 +1,6 @@
 package apis
 
-import (
-	"encoding/base64"
-	"encoding/binary"
-	"encoding/hex"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"github.com/gorilla/mux"
-	near "github.com/near/rollup-data-availability/gopkg/da-rpc"
-	"net/http"
-	"os"
-)
-
+/**
 const (
 	// DA_KEY      = "ed25519:5rruwJXodZu6phNsApFcAm9LFxSy7nYpwnCB8vQDAvJKVgDZ424uGyXQiHQGTM3sbeBkvVXKbGxFiuswXaNRWKjv"
 	// DA_CONTRACT = "8363d67bf00d1aea294285ad3fd1066378ac502d25995cf4a474326535a37201"
@@ -200,3 +188,4 @@ func ApiGetNearDA(w http.ResponseWriter, r *http.Request) {
 
 	return
 }
+**/
