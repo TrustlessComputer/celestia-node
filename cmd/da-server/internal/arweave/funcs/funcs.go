@@ -6,6 +6,7 @@ import (
 	"github.com/celestiaorg/celestia-node/cmd/da-server/internal/arweave/config"
 	"github.com/everFinance/goar"
 	"github.com/everFinance/goar/types"
+	"time"
 )
 
 func Wallet() (*goar.Wallet, error) {
@@ -41,6 +42,7 @@ func StoreData(data []byte) (*string, error) {
 		} else {
 			break
 		}
+		time.Sleep(6 * time.Second) // max time is 60s
 	}
 
 	return txId, nil
