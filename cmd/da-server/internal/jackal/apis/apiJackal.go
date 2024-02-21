@@ -9,6 +9,7 @@ import (
 	"github.com/JackalLabs/jackalgo/handlers/storage_handler"
 	"github.com/JackalLabs/jackalgo/handlers/wallet_handler"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -19,6 +20,17 @@ const (
 	FOLDER_NAME      = "tcjackal"
 	FOLDER_JACKAL    = "s/" + FOLDER_NAME
 )
+
+var wallet *wallet_handler.WalletHandler
+
+func init() {
+	seedPhrase, rpcURL, chainID := getJackalWalletConfig()
+	_wallet, err := wallet_handler.NewWalletHandler(seedPhrase, rpcURL, chainID)
+	if err != nil {
+		log.Panicf("Error creating wallet: %v", err)
+	}
+	wallet = _wallet
+}
 
 func ApiStoreJackal(w http.ResponseWriter, r *http.Request) {
 	type RequestData struct {
@@ -37,16 +49,8 @@ func ApiStoreJackal(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	seedPhrase, rpcURL, chainID := getJackalWalletConfig()
 
-	wallet, err := wallet_handler.NewWalletHandler(seedPhrase, rpcURL, chainID)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	wallet = wallet.WithGas("500000")
-	s := storage_handler.NewStorageHandler(wallet)
+	s := storage_handler.NewStorageHandler(wallet.WithGas("500000"))
 	_, err = s.BuyStorage(wallet.GetAddress(), 720, 2)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -126,12 +130,6 @@ func ApiGetJackal(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "fileName is required", http.StatusBadRequest)
 		return
 
-	}
-	seedPhrase, rpcURL, chainID := getJackalWalletConfig()
-	wallet, err := wallet_handler.NewWalletHandler(seedPhrase, rpcURL, chainID)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
 	}
 
 	fileIO, err := file_io_handler.NewFileIoHandler(wallet.WithGas("500000"))
