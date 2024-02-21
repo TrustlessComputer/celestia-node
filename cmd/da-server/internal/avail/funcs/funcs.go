@@ -11,21 +11,9 @@ import (
 	"time"
 )
 
-// funcs
-func GetConfig() config.Config {
-	return config.Config{
-		Seed:   "verb jump guide coffee path squirrel hire verify gun robust rail fork",
-		ApiURL: "wss://goldberg.avail.tools/ws",
-		Size:   1000,
-		AppID:  0,
-		Dest:   "5H3qehpRTFiB3XwyTzYU43SpG7e8jW87vFug95fxdew76Vyi",
-		Amount: 10,
-	}
-}
-
 // submitData creates a transaction and makes a Avail data submission
 func SubmitData(data []byte) (*string, *uint32, error) {
-	cnf := GetConfig()
+	cnf := config.GetConfig()
 	//Size := cnf.Size
 	ApiURL := cnf.ApiURL
 	Seed := cnf.Seed
@@ -147,7 +135,7 @@ timeout_break:
 }
 
 func QueryData(blockHash string, nonce int64) ([]byte, error) {
-	_config := GetConfig()
+	_config := config.GetConfig()
 	api, err := gsrpc.NewSubstrateAPI(_config.ApiURL)
 	if err != nil {
 		return nil, err
@@ -200,7 +188,7 @@ func getDataString(hash types.Hash, index int64, api *gsrpc.SubstrateAPI) (strin
 		if ext.Method.CallIndex.SectionIndex == 29 && ext.Method.CallIndex.MethodIndex == 1 && ext.Signature.Nonce.Int64() == index {
 			arg := ext.Method.Args
 			str := string(arg)
-			slice := str[1:]
+			slice := str[2:]
 			fmt.Println("string value", slice)
 			return slice, nil
 		}

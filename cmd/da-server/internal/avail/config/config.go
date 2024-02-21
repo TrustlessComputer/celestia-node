@@ -1,10 +1,6 @@
 package config
 
-import (
-	"encoding/json"
-	"io/ioutil"
-	"os"
-)
+import "os"
 
 type Config struct {
 	Seed   string `json:"seed"`
@@ -15,23 +11,9 @@ type Config struct {
 	Amount uint64 `json:"amount"`
 }
 
-func (c *Config) GetConfig(configFileName string) error {
-
-	jsonFile, err := os.Open(configFileName)
-	if err != nil {
-		return err
+func GetConfig() Config {
+	return Config{
+		Seed:   os.Getenv("AVAIL_SEED"),
+		ApiURL: "wss://goldberg.avail.tools/ws",
 	}
-	defer jsonFile.Close()
-
-	byteValue, err := ioutil.ReadAll(jsonFile)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(byteValue, c)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
