@@ -32,6 +32,17 @@ func StoreData(data []byte) (*string, error) {
 		return nil, err
 	}
 
+	// waiting here for get completed tx
+	errTx := goar.ErrPendingTx
+	// try 10 times for making sure tx success
+	for i := 0; i < 10; i++ {
+		if errTx != nil {
+			_, errTx = getData(wl, *txId)
+		} else {
+			break
+		}
+	}
+
 	return txId, nil
 }
 
