@@ -2,12 +2,12 @@ package funcs
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"github.com/celestiaorg/celestia-node/cmd/da-server/internal/avail/config"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
-	"github.com/davecgh/go-spew/spew"
 	"time"
 )
 
@@ -74,10 +74,6 @@ func SubmitData(data []byte) (*string, *uint32, error) {
 		return nil, nil, fmt.Errorf("cannot create LeyPair:%w", err)
 	}
 
-	spew.Dump(string(keyringPair.PublicKey))
-	spew.Dump(keyringPair.Address)
-	spew.Dump(keyringPair.URI)
-
 	key, err := types.CreateStorageKey(meta, "System", "Account", keyringPair.PublicKey)
 	if err != nil {
 		return nil, nil, fmt.Errorf("cannot create storage key:%w", err)
@@ -116,27 +112,38 @@ func SubmitData(data []byte) (*string, *uint32, error) {
 
 	defer sub.Unsubscribe()
 	timeout := time.After(100 * time.Second)
+	h := ""
+
+timeout_break:
 	for {
 		select {
 		case status := <-sub.Chan():
 			if status.IsInBlock {
 				fmt.Printf("Txn inside block %v\n", status.AsInBlock.Hex())
 			} else if status.IsFinalized {
-				fmt.Printf("Txn inside finalized block\n")
 				hash := status.AsFinalized
 				err := getData(hash, api, subData)
+
+				fmt.Printf("Txn inside finalized block with data: %s \n", subData)
 				if err != nil {
-					panic(fmt.Sprintf("cannot get data:%v", err))
+					//panic(fmt.Sprintf("cannot get data:%v", err))
+					return nil, nil, err
 				}
-				return nil, nil, err
+
+				h = hash.Hex()
+				break timeout_break
 			}
 		case <-timeout:
-			fmt.Printf("timeout of 100 seconds reached without getting finalized status for extrinsic")
-			return nil, nil, err
+			break timeout_break
 		}
 	}
 
-	return nil, nil, err
+	if h == "" {
+		err = errors.New("timeout of 100 seconds reached without getting finalized status for extrinsic")
+		return nil, nil, err
+	}
+
+	return &h, &nonce, nil
 }
 
 func QueryData(blockHash string, txIndex uint32) (*HeaderF, error) {
