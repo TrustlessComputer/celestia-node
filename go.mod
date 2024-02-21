@@ -15,12 +15,13 @@ require (
 	github.com/celestiaorg/go-libp2p-messenger v0.2.0
 	github.com/celestiaorg/nmt v0.20.0
 	github.com/celestiaorg/rsmt2d v0.11.0
-	github.com/centrifuge/go-substrate-rpc-client/v4 v4.2.1
+	github.com/centrifuge/go-substrate-rpc-client/v4 v4.0.12
 	github.com/cockroachdb/errors v1.9.1
 	github.com/cosmos/cosmos-sdk v0.46.14
 	github.com/cosmos/cosmos-sdk/api v0.1.0
 	github.com/cristalhq/jwt v1.2.0
 	github.com/etclabscore/go-openrpc-reflect v0.0.37
+	github.com/everFinance/goar v1.5.8
 	github.com/filecoin-project/dagstore v0.5.6
 	github.com/filecoin-project/go-jsonrpc v0.3.1
 	github.com/gammazero/workerpool v1.1.3
@@ -95,7 +96,6 @@ require (
 	github.com/ethereum/c-kzg-4844 v0.3.1 // indirect
 	github.com/everFinance/arseeding v1.0.3 // indirect
 	github.com/everFinance/ethrpc v1.0.4 // indirect
-	github.com/everFinance/goar v1.5.8 // indirect
 	github.com/everFinance/goether v1.1.9 // indirect
 	github.com/everFinance/gojwk v1.0.0 // indirect
 	github.com/everFinance/ttcrsa v1.1.3 // indirect
@@ -319,7 +319,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/petar/GoLLRB v0.0.0-20210522233825-ae3b015fd3e9 // indirect
 	github.com/petermattis/goid v0.0.0-20230317030725-371a4b8eda08 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pkg/errors v0.9.1
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/polydawn/refmt v0.89.0 // indirect
 	github.com/prometheus/client_model v0.4.1-0.20230718164431-9a2bf3000d16 // indirect
@@ -397,3 +397,5 @@ replace (
 )
 
 replace github.com/dgraph-io/badger/v4 => github.com/celestiaorg/badger/v4 v4.0.0-20231125230536-2b9e13346f75
+
+replace github.com/centrifuge/go-substrate-rpc-client/v4 => github.com/availproject/go-substrate-rpc-client/v4 v4.1.0-avail-1.10.0

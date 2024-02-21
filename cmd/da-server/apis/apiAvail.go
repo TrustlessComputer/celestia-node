@@ -2,6 +2,7 @@ package apis
 
 import (
 	"encoding/base64"
+	"fmt"
 	_avail "github.com/celestiaorg/celestia-node/cmd/da-server/internal/avail/funcs"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -25,17 +26,17 @@ func ApiStoreAvail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = decodedBytes
-	err = _avail.SubmitData()
+	hash, txIndex, err := _avail.SubmitData(decodedBytes)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	//_, err = w.Write([]byte(fmt.Sprintf("/%s/%d/%s", NAMESPACE_AVAIL, *txIndex, *hash)))
-	//if err != nil {
-	//	http.Error(w, err.Error(), http.StatusBadRequest)
-	//	return
-	//}
+	_, err = w.Write([]byte(fmt.Sprintf("/%s/%d/%s", NAMESPACE_AVAIL, *txIndex, *hash)))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	return
 }
@@ -55,14 +56,14 @@ func ApiGetAvail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	blockHash := vars["blockHash"]
-	d, err := _avail.QueryData(blockHash, uint32(txIndex))
+	d, err := _avail.QueryData(blockHash, int64(txIndex))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	//TODO - verify here?
-	_, err = w.Write([]byte(d.Root.Hex()))
+	_, err = w.Write(d)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

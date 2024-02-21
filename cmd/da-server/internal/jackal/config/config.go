@@ -10,7 +10,7 @@ type Config struct {
 
 func GetConfig() Config {
 	config := Config{
-		Seed:    "slim odor fiscal swallow piece tide naive river inform shell dune crunch canyon ten time universe orchard roast horn ritual siren cactus upon forum",
+		Seed:    "fiction stadium edge curious never romance enrich idea produce tennis witness struggle",
 		RPC:     "https://jackal-testnet-rpc.polkachu.com:443",
 		ChainId: "lupulella-2",
 	}
