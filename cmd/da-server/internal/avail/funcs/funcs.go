@@ -146,48 +146,26 @@ timeout_break:
 	return &h, &nonce, nil
 }
 
-func QueryData(blockHash string, txIndex uint32) (*HeaderF, error) {
+func QueryData(blockHash string, nonce int64) ([]byte, error) {
 	_config := GetConfig()
 	api, err := gsrpc.NewSubstrateAPI(_config.ApiURL)
 	if err != nil {
-		//panic(fmt.Sprintf("cannot create api client:%v", err))
 		return nil, err
 	}
-
-	//var finalizedBlockCh = make(chan types.Hash)
-	//go func() {
-	//	err = extrinsics.SubmitData(api, "data", config.Seed, config.AppID, finalizedBlockCh)
-	//	if err != nil {
-	//		panic(fmt.Sprintf("cannot submit data:%v", err))
-	//	}
-	//}()
-
-	// block hash to query proof
-	//blockHash := <-finalizedBlockCh
 
 	fmt.Printf("Transaction included in finalized block: %v\n", blockHash)
 	h, _ := types.NewHashFromHexString(blockHash)
-	transactionIndex := types.NewU32(txIndex)
 
-	// query proof
-	var data HeaderF
-	err = api.Client.Call(&data, "kate_queryDataProof", transactionIndex, h)
+	data, err := getDataString(h, nonce, api)
 	if err != nil {
-		//panic(fmt.Sprintf("%v\n", err))
 		return nil, err
 	}
-	fmt.Printf("Root:%v\n", data.Root.Hex())
-	// print array of proof
-	fmt.Printf("Proof:\n")
-	for _, p := range data.Proof {
-		fmt.Printf("%v\n", p.Hex())
+	dataBytes, err := hex.DecodeString(data)
+	if err != nil {
+		return nil, err
 	}
 
-	fmt.Printf("Number of leaves: %v\n", data.Number_Of_Leaves)
-	fmt.Printf("Leaf index: %v\n", data.Leaf_index)
-	fmt.Printf("Leaf: %v\n", data.Leaf.Hex())
-
-	return &data, nil
+	return dataBytes, nil
 }
 
 // getData extracts data from the block and compares it
@@ -210,4 +188,22 @@ func getData(hash types.Hash, api *gsrpc.SubstrateAPI, data string) error {
 		}
 	}
 	return nil
+}
+
+func getDataString(hash types.Hash, index int64, api *gsrpc.SubstrateAPI) (string, error) {
+	block, err := api.RPC.Chain.GetBlock(hash)
+	if err != nil {
+		return "", fmt.Errorf("cannot get block by hash:%w", err)
+	}
+	for _, ext := range block.Block.Extrinsics {
+		// these values below are specific indexes only for data submission, differs with each extrinsic
+		if ext.Method.CallIndex.SectionIndex == 29 && ext.Method.CallIndex.MethodIndex == 1 && ext.Signature.Nonce.Int64() == index {
+			arg := ext.Method.Args
+			str := string(arg)
+			slice := str[1:]
+			fmt.Println("string value", slice)
+			return slice, nil
+		}
+	}
+	return "", nil
 }
