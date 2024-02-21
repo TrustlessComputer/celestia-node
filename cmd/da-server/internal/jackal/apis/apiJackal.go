@@ -24,8 +24,8 @@ const (
 var wallet *wallet_handler.WalletHandler
 
 func init() {
-	seedPhrase, rpcURL, chainID := getJackalWalletConfig()
-	_wallet, err := wallet_handler.NewWalletHandler(seedPhrase, rpcURL, chainID)
+	cfg := config.GetConfig()
+	_wallet, err := wallet_handler.NewWalletHandler(cfg.Seed, cfg.RPC, cfg.ChainId)
 	if err != nil {
 		log.Panicf("Error creating wallet: %v", err)
 	}
@@ -33,11 +33,7 @@ func init() {
 }
 
 func ApiStoreJackal(w http.ResponseWriter, r *http.Request) {
-	type RequestData struct {
-		Data string `json:"data"`
-	}
-	data := RequestData{}
-	err := json.NewDecoder(r.Body).Decode(&data)
+	data, err := DecodeReqBody(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -47,13 +43,6 @@ func ApiStoreJackal(w http.ResponseWriter, r *http.Request) {
 	decodedBytes, err := base64.StdEncoding.DecodeString(data.Data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	configInfo := config.GetConfig()
-
-	wallet, err := wallet_handler.NewWalletHandler(configInfo.Seed, configInfo.RPC, configInfo.ChainId)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -121,12 +110,6 @@ func ApiGetJackal(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "fileName is required", http.StatusBadRequest)
 		return
 
-	}
-	configInfo := config.GetConfig()
-	wallet, err := wallet_handler.NewWalletHandler(configInfo.Seed, configInfo.RPC, configInfo.ChainId)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
 	}
 
 	fileIO, err := file_io_handler.NewFileIoHandler(wallet.WithGas("500000"))
