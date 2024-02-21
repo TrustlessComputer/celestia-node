@@ -9,8 +9,8 @@ import (
 	"github.com/JackalLabs/jackalgo/handlers/storage_handler"
 	"github.com/JackalLabs/jackalgo/handlers/wallet_handler"
 	"github.com/gorilla/mux"
+	"jackalda/config"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -37,9 +37,9 @@ func ApiStoreJackal(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	seedPhrase, rpcURL, chainID := getJackalWalletConfig()
+	configInfo := config.GetConfig()
 
-	wallet, err := wallet_handler.NewWalletHandler(seedPhrase, rpcURL, chainID)
+	wallet, err := wallet_handler.NewWalletHandler(configInfo.Seed, configInfo.RPC, configInfo.ChainId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -103,22 +103,6 @@ func ApiStoreJackal(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func getJackalWalletConfig() (seedPhrase string, rpcURL string, chainID string) {
-	seedPhrase = "slim odor fiscal swallow piece tide naive river inform shell dune crunch canyon ten time universe orchard roast horn ritual siren cactus upon forum"
-	rpcURL = "https://jackal-testnet-rpc.polkachu.com:443"
-	chainID = "lupulella-2"
-
-	env := os.Getenv("api_env")
-
-	if env == "mainnet" {
-		seedPhrase = os.Getenv("JACKAL_SEED_PHRASE")
-		rpcURL = "https://rpc.jackalprotocol.com:443"
-		chainID = "jackal-1"
-	}
-
-	return seedPhrase, rpcURL, chainID
-
-}
 func ApiGetJackal(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fileName := vars["fileName"]
@@ -127,8 +111,8 @@ func ApiGetJackal(w http.ResponseWriter, r *http.Request) {
 		return
 
 	}
-	seedPhrase, rpcURL, chainID := getJackalWalletConfig()
-	wallet, err := wallet_handler.NewWalletHandler(seedPhrase, rpcURL, chainID)
+	configInfo := config.GetConfig()
+	wallet, err := wallet_handler.NewWalletHandler(configInfo.Seed, configInfo.RPC, configInfo.ChainId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
