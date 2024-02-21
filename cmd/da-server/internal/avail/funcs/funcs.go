@@ -1,6 +1,7 @@
 package funcs
 
 import (
+	"encoding/hex"
 	"fmt"
 	"github.com/celestiaorg/celestia-node/cmd/da-server/internal/avail/config"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
@@ -49,7 +50,8 @@ func SubmitData(data []byte) (*string, *uint32, error) {
 	//	appID = AppID
 	//}
 
-	c, err := types.NewCall(meta, "DataAvailability.submit_data", types.NewBytes(data))
+	subData := hex.EncodeToString(data)
+	c, err := types.NewCall(meta, "DataAvailability.submit_data", types.NewBytes([]byte(subData)))
 	if err != nil {
 		return nil, nil, fmt.Errorf("cannot create new call:%w", err)
 	}
@@ -92,10 +94,10 @@ func SubmitData(data []byte) (*string, *uint32, error) {
 		BlockHash:          genesisHash,
 		Era:                types.ExtrinsicEra{IsMortalEra: false},
 		GenesisHash:        genesisHash,
-		Nonce:              types.NewUCompactFromUInt(uint64(nonce) + 1),
+		Nonce:              types.NewUCompactFromUInt(uint64(nonce)),
 		SpecVersion:        rv.SpecVersion,
 		Tip:                types.NewUCompactFromUInt(0),
-		AppID:              types.NewUCompactFromUInt(uint64(0)),
+		AppID:              types.NewUCompactFromUInt(uint64(cnf.AppID)),
 		TransactionVersion: rv.TransactionVersion,
 	}
 
@@ -122,7 +124,7 @@ func SubmitData(data []byte) (*string, *uint32, error) {
 			} else if status.IsFinalized {
 				fmt.Printf("Txn inside finalized block\n")
 				hash := status.AsFinalized
-				err := getData(hash, api, string(data))
+				err := getData(hash, api, subData)
 				if err != nil {
 					panic(fmt.Sprintf("cannot get data:%v", err))
 				}
