@@ -36,13 +36,16 @@ func StoreData(data []byte) (*string, error) {
 	// waiting here for get completed tx
 	errTx := goar.ErrPendingTx
 	// try 10 times for making sure tx success
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 100; i++ {
 		if errTx != nil {
 			_, errTx = getData(wl, *txId)
+			if errTx != nil {
+				fmt.Printf("try get arwear txid=%s status %v", *txId, errTx)
+			}
 		} else {
 			break
 		}
-		time.Sleep(18 * time.Second) // max time is 60s
+		time.Sleep(6 * time.Second) // max time is 60s
 	}
 	if errTx != nil {
 		fmt.Printf("err arwear txid=%s err %v", *txId, errTx)
