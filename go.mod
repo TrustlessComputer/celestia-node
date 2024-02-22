@@ -114,6 +114,7 @@ require (
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/nwidger/lighthouse v0.4.3 // indirect
 	github.com/panjf2000/ants/v2 v2.6.0 // indirect
 	github.com/pierrec/xxHash v0.1.5 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
@@ -126,6 +127,7 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/vedhavyas/go-subkey/v2 v2.0.0 // indirect
 	go.uber.org/mock v0.3.0 // indirect
+	golang.org/x/time v0.5.0 // indirect
 	gopkg.in/h2non/gentleman.v2 v2.0.5 // indirect
 	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 	gorm.io/datatypes v1.0.1 // indirect
