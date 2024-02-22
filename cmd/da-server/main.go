@@ -36,7 +36,7 @@ func main() {
 	//FileCoin da: TODO
 	apiFileCoin := router.PathPrefix("/filecoin").Subrouter()
 	apiFileCoin.HandleFunc("/store", apis.ApiStoreFileCoin).Methods("POST", "GET")
-	apiFileCoin.HandleFunc("/get/{namespace}/{dataHex}", apis.ApiGetFileCoin).Methods("GET")
+	apiFileCoin.HandleFunc("/get/{namespace}/{cid}", apis.ApiGetFileCoin).Methods("GET")
 
 	//Arweave
 	apiArweave := router.PathPrefix("/arweave").Subrouter()

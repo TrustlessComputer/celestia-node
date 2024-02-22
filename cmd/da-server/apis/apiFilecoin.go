@@ -37,7 +37,7 @@ func ApiStoreFileCoin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = w.Write([]byte(fmt.Sprintf("/%s/%s", NAMESPACE_FILECOIN, hash)))
+	_, err = w.Write([]byte(fmt.Sprintf("/%s/%s", NAMESPACE_FILECOIN, *hash)))
 	return
 
 }
@@ -50,7 +50,7 @@ func ApiGetFileCoin(w http.ResponseWriter, r *http.Request) {
 		namespace = namespace[:10]
 	}
 
-	hash := vars["dataHex"]
+	hash := vars["cid"]
 	data, err := _fileCoin.GetData(hash)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

@@ -3,6 +3,7 @@ package funcs
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/celestiaorg/celestia-node/cmd/da-server/internal/filecoin/config"
 	"github.com/tendermint/tendermint/types/time"
@@ -17,6 +18,7 @@ func dealParams() DealParams {
 		NumCopies:       3, //maximum
 		RenewThreshold:  240,
 		RepairThreshold: 28800,
+		Network:         "testnet",
 	}
 }
 
@@ -49,8 +51,7 @@ func StoreData(data []byte) (*string, error) {
 	cnf := config.GetConfig()
 
 	//TODO - implement me
-	//client := lighthouse.NewClient("892a9858.220d782af3e14bb6a05589a51e4898ab")
-	token := cnf.RpcUrl
+	token := cnf.APIKey
 	apiUrl := cnf.RpcUrl
 
 	//create the uploaded file
@@ -59,6 +60,7 @@ func StoreData(data []byte) (*string, error) {
 		return nil, err
 	}
 	fn := *fn1
+	defer os.Remove(fn)
 
 	// Create a buffer to store the request body
 	var buf bytes.Buffer
@@ -114,15 +116,42 @@ func StoreData(data []byte) (*string, error) {
 
 	err = json.Unmarshal(body, fResp)
 	if err != nil {
+		err = errors.New(string(body)) // catch auth fail!!!
 		return nil, err
 	}
 
-	os.Remove(fn)
 	return &fResp.Hash, nil
 }
 
 func GetData(cid string) ([]byte, error) {
-	//TODO - implement me
+	cnf := config.GetConfig()
+	urlLink := fmt.Sprintf("%s/ipfs/%s", cnf.GetInfoURL, cid)
 
-	return nil, nil
+	req, err := http.NewRequest(
+		"GET",
+		urlLink,
+		nil,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	client := &http.Client{}
+	//req.Header.Add("accept", "application/json")
+	//req.Header.Add("content-type", "application/json")
+	//req.Header.Add("authorization", fmt.Sprintf("Bearer %s", apikey))
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	//fmt.Println("body", string(body))
+	return body, nil
 }
