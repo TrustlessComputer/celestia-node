@@ -6,11 +6,16 @@ type FileCoinResp struct {
 	Size string `json:"Size"`
 }
 
+type FileCoinReq struct {
+	Cid      string `json:"cid"`
+	FileName string `json:"fileName"`
+}
+
 type DealParams struct {
-	NumCopies       int      `json:"num_copies"`
-	RepairThreshold int      `json:"repair_threshold"`
-	RenewThreshold  int      `json:"renew_threshold"`
-	Miner           []string `json:"miner"`
-	Network         string   `json:"network"`
-	AddMockData     int      `json:"add_mock_data"`
+	NumCopies       int      `json:"num_copies,omitempty"`
+	RepairThreshold int      `json:"repair_threshold,omitempty"`
+	RenewThreshold  int      `json:"renew_threshold,omitempty"`
+	Miner           []string `json:"miner,omitempty"`
+	Network         string   `json:"network,omitempty"`
+	AddMockData     int      `json:"add_mock_data,omitempty"`
 }

@@ -13,17 +13,43 @@ import (
 	"os"
 )
 
-func dealParams() DealParams {
+func dealParams(env string) DealParams {
+	return DealParams{
+		NumCopies:       2, //maximum
+		RenewThreshold:  240,
+		RepairThreshold: 28800,
+		Network:         env,
+		AddMockData:     2,
+	}
+}
+
+// Default parameters set. All RaaS workers enabled, any miners can take the deal. 2 MiB mock file added.
+func dealParamsDefault(env string) DealParams {
 	return DealParams{
 		NumCopies:       3, //maximum
 		RenewThreshold:  240,
 		RepairThreshold: 28800,
-		Network:         "testnet",
 	}
 }
 
-func dealParamsString() string {
-	dps := dealParams()
+func dealParamsMock(env string) DealParams {
+	return DealParams{
+		AddMockData: 4,
+		Network:     env,
+	}
+}
+
+func dealParamsString(dpsType string, env string) string {
+	dps := DealParams{}
+	switch dpsType {
+	case "default":
+		dps = dealParamsDefault(env)
+	case "mock":
+		dps = dealParamsMock(env)
+	default:
+		dps = dealParams(env)
+	}
+
 	_b, err := json.Marshal(dps)
 	if err != nil {
 		return ""
@@ -45,6 +71,49 @@ func createTheUploadedFile(data []byte) (*os.File, *string, error) {
 	}
 
 	return f, &fn, nil
+}
+
+func pinFile(fileName, cid string) (interface{}, error) {
+	cnf := config.GetConfig()
+
+	urlLink := fmt.Sprintf("%s/lighthouse/pin", cnf.PinURL)
+	reqBody := FileCoinReq{
+		FileName: fileName,
+		Cid:      cid,
+	}
+
+	_b, err := json.Marshal(reqBody)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(
+		"POST",
+		urlLink,
+		bytes.NewReader(_b),
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	client := &http.Client{}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", cnf.APIKey))
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	//fmt.Println("body", string(body))
+	return body, nil
+
 }
 
 func StoreData(data []byte) (*string, error) {
@@ -95,8 +164,7 @@ func StoreData(data []byte) (*string, error) {
 		return nil, err
 	}
 
-	dps := dealParamsString()
-
+	dps := dealParamsString("default", cnf.Env)
 	req.Header.Set("Content-Type", w.FormDataContentType())
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	req.Header.Set("X-Deal-Parameter", dps)
@@ -120,12 +188,14 @@ func StoreData(data []byte) (*string, error) {
 		return nil, err
 	}
 
+	pinFile(fResp.Name, fResp.Hash)
+
 	return &fResp.Hash, nil
 }
 
 func GetData(cid string) ([]byte, error) {
 	cnf := config.GetConfig()
-	urlLink := fmt.Sprintf("%s/ipfs/%s", cnf.GetInfoURL, cid)
+	urlLink := fmt.Sprintf("%s/ipfs/%s", cnf.RetrieveFile, cid)
 
 	req, err := http.NewRequest(
 		"GET",
@@ -151,7 +221,6 @@ func GetData(cid string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	//fmt.Println("body", string(body))
 	return body, nil
 }
