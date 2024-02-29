@@ -2,114 +2,128 @@ package funcs
 
 import (
 	"bytes"
+	b64 "encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/celestiaorg/celestia-node/cmd/da-server/internal/syscoin/config"
 	"github.com/pkg/errors"
 	"io"
 	"net/http"
-	"os"
+	"time"
 )
 
-type SyscoinConfig struct {
-	rpcURL  string
-	chainId string
+func credential() string {
+	cnf := config.GetConfig()
+	s := fmt.Sprintf("%s:%s", cnf.User, cnf.Password)
+	sEnc := b64.StdEncoding.EncodeToString([]byte(s))
+	return sEnc
 }
 
-type SyscoinRPCResp struct {
-	jsonrpc string
-	result  string
+func createReqHeader(req *http.Request) {
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", fmt.Sprintf("Basic %s", credential()))
 }
 
-func getSyscoinConfig() (config SyscoinConfig) {
-	config.rpcURL = "https://rpc.tanenbaum.io"
-	config.chainId = "5700"
+func sysRequest(syscoinMethod string, params []interface{}) ([]byte, error) {
+	cnf := config.GetConfig()
+	client := &http.Client{}
 
-	env := os.Getenv("api_env")
-
-	if env == "mainnet" {
-		config.rpcURL = "https://rpc.syscoin.org"
-		config.chainId = "57"
+	paramsStr := "[]"
+	if len(params) != 0 {
+		_b, err1 := json.Marshal(params)
+		if err1 != nil {
+			return nil, err1
+		}
+		paramsStr = string(_b)
 	}
-	return config
+	id := fmt.Sprintf("bmv-%d", time.Now().UTC().UnixNano())
+	requestData := fmt.Sprintf(`{"jsonrpc": "1.0", "id": "%s", "method": "%s", "params": %s}`, id, syscoinMethod, paramsStr)
+	req, err := http.NewRequest(
+		"POST",
+		cnf.RpcURL,
+		bytes.NewReader([]byte(requestData)),
+	)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	createReqHeader(req)
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	d := &SyscoinRPCResp{}
+	err = json.Unmarshal(body, d)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	if d.Error != nil {
+		return nil, errors.WithStack(errors.New(fmt.Sprintf("%d, %s", d.Error.Code, d.Error.Message)))
+	}
+
+	_b, err := json.Marshal(d.Result)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return _b, nil
 }
 
 func UploadData(data []byte) (string, error) {
-	config := getSyscoinConfig()
-	client := &http.Client{}
+	var err error
 	dataBlobInHex := hex.EncodeToString(data)
-	requestData := `{"jsonrpc": "1.0", "method": "syscoincreatenevmblob", "params": ["` + dataBlobInHex + `"]}`
-	jsonData, err := json.Marshal(requestData)
-	if err != nil {
-		return "", errors.WithStack(err)
-	}
-	req, err := http.NewRequest(
-		"POST",
-		config.rpcURL,
-		bytes.NewReader(jsonData),
-	)
-	if err != nil {
-		return "", errors.WithStack(err)
-	}
-	req.Header.Add("accept", "application/json")
-	req.Header.Add("content-type", "application/json")
-	resp, err := client.Do(req)
+	body, err := sysRequest(METHOD_CREATE_EVM_BLOD, []interface{}{dataBlobInHex})
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", errors.WithStack(err)
-	}
-	respData := SyscoinRPCResp{}
+	respData := SyscoinUploadResp{}
 	err = json.Unmarshal(body, &respData)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
-	return respData.result, nil
+
+	return respData.Versionhash, nil
 }
 
 func GetData(hash string) ([]byte, error) {
-	config := getSyscoinConfig()
-	client := &http.Client{}
-	requestData := `{"jsonrpc": "1.0", "id": "curltest", "method": "getnevmblobdata", "params": ["` + hash + `"]}`
-	jsonData, err := json.Marshal(requestData)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	req, err := http.NewRequest(
-		"POST",
-		config.rpcURL,
-		bytes.NewReader(jsonData),
-	)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	req.Header.Add("accept", "application/json")
-	req.Header.Add("content-type", "application/json")
-	resp, err := client.Do(req)
+	var err error
+
+	//https://docs.syscoin.org/docs/tech/poda#getnevmblobdata
+	//example "params": ["hash_string", true]
+	body, err := sysRequest(METHOD_GET_EVM_BLOD, []interface{}{hash, true})
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	fmt.Println("body", string(body))
-
-	respData := SyscoinRPCResp{}
+	respData := SyscoinGetUploadedResp{}
 	err = json.Unmarshal(body, &respData)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	data, err := hex.DecodeString(respData.result)
+	_b, err := hex.DecodeString(respData.Data)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	return data, nil
+	return _b, nil
+}
+
+// test
+func Getblockchaininfo() ([]byte, error) {
+	resp, err := sysRequest(METHOD_GET_BLOCK_INFO, []interface{}{})
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
