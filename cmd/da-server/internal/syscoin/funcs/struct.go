@@ -1,5 +1,10 @@
 package funcs
 
+const (
+	METHOD_CREATE_EVM_BLOD string = "syscoincreatenevmblob"
+	METHOD_GET_BLOCK_INFO  string = "getblockchaininfo"
+)
+
 type SyscoinRPCResp struct {
 	jsonrpc string
 	result  string

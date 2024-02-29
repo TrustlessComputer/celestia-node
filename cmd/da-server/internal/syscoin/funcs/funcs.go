@@ -79,7 +79,7 @@ func sysRequest(syscoinMethod string, params string) ([]byte, error) {
 func UploadData(data []byte) (string, error) {
 	var err error
 	dataBlobInHex := hex.EncodeToString(data)
-	body, err := sysRequest("syscoincreatenevmblob", dataBlobInHex)
+	body, err := sysRequest(METHOD_CREATE_EVM_BLOD, dataBlobInHex)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
@@ -93,56 +93,13 @@ func UploadData(data []byte) (string, error) {
 }
 
 func GetData(hash string) ([]byte, error) {
-	/*config := getSyscoinConfig()
-	client := &http.Client{}
-	method := "getnevmblobdata"*/
-	//requestData := `{"jsonrpc": "1.0", "id": "curltest", "method": "getnevmblobdata", "params": ["` + hash + `"]}`
-	//jsonData, err := json.Marshal(requestData)
-	//if err != nil {
-	//	return nil, errors.WithStack(err)
-	//}
-	//req, err := http.NewRequest(
-	//	"POST",
-	//	config.RpcURL,
-	//	bytes.NewReader(jsonData),
-	//)
-	//if err != nil {
-	//	return nil, errors.WithStack(err)
-	//}
-	//req.Header.Add("accept", "application/json")
-	//req.Header.Add("content-type", "application/json")
-	//resp, err := client.Do(req)
-	//if err != nil {
-	//	return nil, errors.WithStack(err)
-	//}
-	//
-	//body, err := io.ReadAll(resp.Body)
-	//if err != nil {
-	//	return nil, errors.WithStack(err)
-	//}
-	//
-	//fmt.Println("body", string(body))
-	//
-	//respData := SyscoinRPCResp{}
-	//err = json.Unmarshal(body, &respData)
-	//if err != nil {
-	//	return nil, errors.WithStack(err)
-	//}
-	//
-	//data, err := hex.DecodeString(respData.result)
-	//if err != nil {
-	//	return nil, errors.WithStack(err)
-	//}
-	//
-	//return data, nil
-
-	//TODO implement me
+	//TODO - implement me
 	return nil, nil
 }
 
 // test
 func Getblockchaininfo() ([]byte, error) {
-	resp, err := sysRequest("getblockchaininfo", "")
+	resp, err := sysRequest(METHOD_GET_BLOCK_INFO, "")
 	if err != nil {
 		return nil, err
 	}
