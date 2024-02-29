@@ -13,14 +13,13 @@ const (
 )
 
 func ApiStoreSysCoin(w http.ResponseWriter, r *http.Request) {
-	//TODO - implement me
 	data, err := DecodeReqBody(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// Use the data
+	//Use the data
 	decodedBytes, err := base64.StdEncoding.DecodeString(data.Data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
