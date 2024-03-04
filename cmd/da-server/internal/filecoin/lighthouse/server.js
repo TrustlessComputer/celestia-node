@@ -13,6 +13,7 @@ const NAMESPACE_FILECOIN = "tcfilecoin"
 app.use(express.static('public'));
 app.use(bodyParser.json());
 
+
 app.post(`/filecoin/store`, async (req, res) => {
    // wrap in try catch block
     try {
@@ -28,32 +29,72 @@ app.post(`/filecoin/store`, async (req, res) => {
         const filePath = `/tmp/${fileName}`;
         require('fs').writeFileSync(filePath, bytes);
         const dealParams = {
-            num_copies: 2,
-            repair_threshold: 28800,
-            renew_threshold: 240,
-            miner: ["t017840"],
             network: 'calibration',
-            add_mock_data: 2
         };
-        const resp = await lighthouse.upload( `/tmp/${fileName}`, getLighthouseAPIKey());
+        let resp = undefined;
+        if (process.env.api_env === "mainnet") {
+             resp = await lighthouse.upload( `/tmp/${fileName}`, getLighthouseAPIKey());
+        } else {
+            resp = await lighthouse.upload( `/tmp/${fileName}`, getLighthouseAPIKey(), false, dealParams);
+        }
+        console.log("resp from upload: ", resp);
 
-        console.log("resp", resp);
-        await sleep(100000);
+        await sleep(5000);
 
+        let params = {
+            cid: resp.data.Hash,
+            network: "testnet",
+        };
+
+        if (process.env.api_env === "mainnet") {
+            params.network = "mainnet";
+        }
 
         let response = await axios.get("https://api.lighthouse.storage/api/lighthouse/get_proof", {
-            params: {
-                cid: resp.data.Hash,
-                // network: "testnet" // Change the network to mainnet when ready
-            }
-        })
-        console.log("response", response);
+            params: params,
+        });
+        const dealStatusResp = await  lighthouse.dealStatus(resp.data.Hash);
+        let tcFileHash = resp.data.Hash;
+        if (response.data.dealInfo && response.data.dealInfo.length > 0) {
+            tcFileHash += '_' + response.data.dealInfo[0].dealId;
+        }
+        const result = {
+            resp,
+            cid: resp.data.Hash,
+            dealStatus: dealStatusResp.data,
+            proofResp: response.data,
+            tcFileHash: tcFileHash,
+        };
+        console.log("final result when store with Filecoin: ", result);
+        return res.status(200).send(NAMESPACE_FILECOIN + '/' + tcFileHash);
+    } catch (error) {
+        return res.status(500).send(error);
+    }
+});
 
-        const dealID = response.data.deal_id;
+app.get(`/filecoin/get/tcfilecoin/:fileHash`, async (req, res) => {
+    console.log("get file");
+    try {
+        const fileHash = req.params.fileHash;
+        if (!fileHash) {
+            return res.status(400).send('Invalid fileHash');
+        }
+        // split fileHash by _
+        const fileHashArr = fileHash.split('_');
+        if (fileHashArr.length < 1) {
+            return res.status(400).send('Invalid fileHash');
+        }
 
-        console.log(resp);
+        const lighthouseDealDownloadEndpoint = 'https://gateway.lighthouse.storage/ipfs/'
+        let response = await axios({
+            method: 'GET',
+            url: `${lighthouseDealDownloadEndpoint}${fileHashArr[0]}`,
+            responseType: 'stream',
+        });
 
-        return res.status(200).send(cid);
+        // how to response to the client (postman) ? Copilot please help me
+        response.data.pipe(res);
+        // return res.status(200).write(response);
     } catch (error) {
         return res.status(500).send(error);
     }
