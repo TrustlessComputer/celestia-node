@@ -13,6 +13,7 @@ const NAMESPACE_FILECOIN = "tcfilecoin"
 app.use(express.static('public'));
 app.use(bodyParser.json());
 
+
 app.post(`/filecoin/store`, async (req, res) => {
    // wrap in try catch block
     try {
@@ -64,7 +65,8 @@ app.post(`/filecoin/store`, async (req, res) => {
             proofResp: response.data,
             tcFileHash: tcFileHash,
         };
-        return res.status(200).send(result);
+        console.log("final result when store with Filecoin: ", result);
+        return res.status(200).send(NAMESPACE_FILECOIN + '/' + tcFileHash);
     } catch (error) {
         return res.status(500).send(error);
     }
