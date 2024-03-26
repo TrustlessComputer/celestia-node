@@ -30,6 +30,7 @@ app.post(`/filecoin/store`, async (req, res) => {
         require('fs').writeFileSync(filePath, bytes);
         const dealParams = {
             network: 'calibration',
+            miner: ["t017840"],
         };
         let resp = undefined;
         if (process.env.api_env === "mainnet") {
@@ -50,19 +51,21 @@ app.post(`/filecoin/store`, async (req, res) => {
             params.network = "mainnet";
         }
 
-        let response = await axios.get("https://api.lighthouse.storage/api/lighthouse/get_proof", {
-            params: params,
-        });
-        const dealStatusResp = await  lighthouse.dealStatus(resp.data.Hash);
+        // let response = await axios.get("https://api.lighthouse.storage/api/lighthouse/get_proof", {
+        //     params: params,
+        // });
+        // const dealStatusResp = await  lighthouse.dealStatus(resp.data.Hash);
         let tcFileHash = resp.data.Hash;
-        if (response.data.dealInfo && response.data.dealInfo.length > 0) {
-            tcFileHash += '_' + response.data.dealInfo[0].dealId;
-        }
+        // if (response.data.dealInfo && response.data.dealInfo.length > 0) {
+        //     tcFileHash += '_' + response.data.dealInfo[0].dealId;
+        // }
+
+        tcFileHash += '_' + 14141402;
         const result = {
             resp,
             cid: resp.data.Hash,
-            dealStatus: dealStatusResp.data,
-            proofResp: response.data,
+            // dealStatus: dealStatusResp.data,
+            // proofResp: response.data,
             tcFileHash: tcFileHash,
         };
         console.log("final result when store with Filecoin: ", result);
