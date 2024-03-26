@@ -69,7 +69,7 @@ app.post(`/filecoin/store`, async (req, res) => {
             tcFileHash: tcFileHash,
         };
         console.log("final result when store with Filecoin: ", result);
-        return res.status(200).send(NAMESPACE_FILECOIN + '/' + tcFileHash);
+        return res.status(200).send("/" + NAMESPACE_FILECOIN + '/' + tcFileHash);
     } catch (error) {
         return res.status(500).send(error);
     }
